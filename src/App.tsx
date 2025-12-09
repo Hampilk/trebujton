@@ -57,6 +57,13 @@ const Product = lazy(() => import('@pages/Product'));
 const Login = lazy(() => import('@pages/Login'));
 const SignUp = lazy(() => import('@pages/SignUp'));
 const Settings = lazy(() => import('@pages/Settings'));
+const Admin = lazy(() => import('@pages/Admin'));
+const AdminUsers = lazy(() => import('@pages/AdminUsers'));
+const AdminPredictions = lazy(() => import('@pages/AdminPredictions'));
+const AdminModels = lazy(() => import('@pages/AdminModels'));
+const AdminJobs = lazy(() => import('@pages/AdminJobs'));
+const AdminMonitoring = lazy(() => import('@pages/AdminMonitoring'));
+const AdminSettings = lazy(() => import('@pages/AdminSettings'));
 
 const App: React.FC = () => {
     const appRef = useRef<HTMLDivElement>(null);
