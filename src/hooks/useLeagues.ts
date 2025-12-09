@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { FootballDataService } from '@/lib/services/football';
 
 export interface League {
   id: string;
@@ -26,31 +26,14 @@ export interface LeagueStanding {
 export const useLeagues = () => {
   return useQuery({
     queryKey: ['leagues'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('leagues')
-        .select('*')
-        .order('name', { ascending: true });
-
-      if (error) throw error;
-      return data as League[];
-    },
+    queryFn: () => FootballDataService.getLeagues(),
   });
 };
 
 export const useLeague = (id: string) => {
   return useQuery({
     queryKey: ['leagues', id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('leagues')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (error) throw error;
-      return data as League;
-    },
+    queryFn: () => FootballDataService.getLeague(id),
     enabled: !!id,
   });
 };
@@ -58,16 +41,7 @@ export const useLeague = (id: string) => {
 export const useLeagueStandings = (league_id: string) => {
   return useQuery({
     queryKey: ['league-standings', league_id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('league_standings')
-        .select('*')
-        .eq('league_id', league_id)
-        .order('position', { ascending: true });
-
-      if (error) throw error;
-      return data as LeagueStanding[];
-    },
+    queryFn: () => FootballDataService.getLeagueStandings(league_id),
     enabled: !!league_id,
   });
 };
