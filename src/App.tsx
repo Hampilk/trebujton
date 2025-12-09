@@ -32,6 +32,7 @@ import useAuthRoute from '@hooks/useAuthRoute';
 import { Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import LoadingScreen from '@components/LoadingScreen';
+import { ProtectedRoute, RoleProtectedRoute } from '@components/ProtectedRoute';
 import Sidebar from '@layout/Sidebar';
 import BottomNav from '@layout/BottomNav';
 import Navbar from '@layout/Navbar';
@@ -57,6 +58,15 @@ const Product = lazy(() => import('@pages/Product'));
 const Login = lazy(() => import('@pages/Login'));
 const SignUp = lazy(() => import('@pages/SignUp'));
 const Settings = lazy(() => import('@pages/Settings'));
+
+// admin pages
+const AdminDashboard = lazy(() => import('@pages/admin/AdminDashboard'));
+const AdminUsers = lazy(() => import('@pages/admin/AdminUsers'));
+const AdminPredictions = lazy(() => import('@pages/admin/AdminPredictions'));
+const AdminModels = lazy(() => import('@pages/admin/AdminModels'));
+const AdminJobs = lazy(() => import('@pages/admin/AdminJobs'));
+const AdminMonitoring = lazy(() => import('@pages/admin/AdminMonitoring'));
+const AdminSettings = lazy(() => import('@pages/admin/AdminSettings'));
 
 const App: React.FC = () => {
     const appRef = useRef<HTMLDivElement>(null);
@@ -130,6 +140,57 @@ const App: React.FC = () => {
                                                 <Route path="/login" element={<Login />} />
                                                 <Route path="/sign-up" element={<SignUp />} />
                                                 <Route path="/settings" element={<Settings />} />
+                                                
+                                                {/* Admin routes - protected and role-based */}
+                                                <Route path="/admin" element={
+                                                    <ProtectedRoute>
+                                                        <RoleProtectedRoute allowedRoles={['admin', 'analyst']}>
+                                                            <AdminDashboard />
+                                                        </RoleProtectedRoute>
+                                                    </ProtectedRoute>
+                                                } />
+                                                <Route path="/admin/users" element={
+                                                    <ProtectedRoute>
+                                                        <RoleProtectedRoute allowedRoles={['admin', 'analyst']}>
+                                                            <AdminUsers />
+                                                        </RoleProtectedRoute>
+                                                    </ProtectedRoute>
+                                                } />
+                                                <Route path="/admin/predictions" element={
+                                                    <ProtectedRoute>
+                                                        <RoleProtectedRoute allowedRoles={['admin', 'analyst']}>
+                                                            <AdminPredictions />
+                                                        </RoleProtectedRoute>
+                                                    </ProtectedRoute>
+                                                } />
+                                                <Route path="/admin/models" element={
+                                                    <ProtectedRoute>
+                                                        <RoleProtectedRoute allowedRoles={['admin', 'analyst']}>
+                                                            <AdminModels />
+                                                        </RoleProtectedRoute>
+                                                    </ProtectedRoute>
+                                                } />
+                                                <Route path="/admin/jobs" element={
+                                                    <ProtectedRoute>
+                                                        <RoleProtectedRoute allowedRoles={['admin', 'analyst']}>
+                                                            <AdminJobs />
+                                                        </RoleProtectedRoute>
+                                                    </ProtectedRoute>
+                                                } />
+                                                <Route path="/admin/monitoring" element={
+                                                    <ProtectedRoute>
+                                                        <RoleProtectedRoute allowedRoles={['admin', 'analyst']}>
+                                                            <AdminMonitoring />
+                                                        </RoleProtectedRoute>
+                                                    </ProtectedRoute>
+                                                } />
+                                                <Route path="/admin/settings" element={
+                                                    <ProtectedRoute>
+                                                        <RoleProtectedRoute allowedRoles={['admin', 'analyst']}>
+                                                            <AdminSettings />
+                                                        </RoleProtectedRoute>
+                                                    </ProtectedRoute>
+                                                } />
                                             </Routes>
                                         </Suspense>
                                     </div>

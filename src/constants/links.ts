@@ -90,6 +90,40 @@ const LINKS = [
                 path: '/product'
             }
         ]
+    },
+    {
+        title: 'Admin',
+        icon: 'settings',
+        pages: [
+            {
+                title: 'Admin panel',
+                path: '/admin'
+            },
+            {
+                title: 'Felhasználók',
+                path: '/admin/users'
+            },
+            {
+                title: 'Előrejelzések',
+                path: '/admin/predictions'
+            },
+            {
+                title: 'Modellek',
+                path: '/admin/models'
+            },
+            {
+                title: 'Folyamatok',
+                path: '/admin/jobs'
+            },
+            {
+                title: 'Monitoring',
+                path: '/admin/monitoring'
+            },
+            {
+                title: 'Beállítások',
+                path: '/admin/settings'
+            }
+        ]
     }
 ];
 
