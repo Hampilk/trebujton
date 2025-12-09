@@ -445,7 +445,33 @@ const layouts: LayoutDefinition = {
             {i: 'privacy', x: 1, y: 4, w: 1, h: 2},
             {i: 'notifications_settings', x: 0, y: 6, w: 1, h: 1},
             {i: 'notifications_schedule', x: 0, y: 7, w: 1, h: 1},
-            {i: 'password', x: 1, y: 6, w: 1, h: 2}
+             {i: 'password', x: 1, y: 6, w: 1, h: 2}
+         ]
+     },
+    analytics: {
+        xl: [
+            {i: 'accuracy_chart', x: 0, y: 0, w: 2, h: 2},
+            {i: 'confidence_distribution', x: 2, y: 0, w: 2, h: 2},
+            {i: 'model_comparison', x: 0, y: 2, w: 2, h: 2},
+            {i: 'pattern_heatmap', x: 2, y: 2, w: 2, h: 2},
+            {i: 'streak_analysis', x: 0, y: 4, w: 2, h: 2},
+            {i: 'transition_matrix', x: 2, y: 4, w: 2, h: 2},
+        ],
+        lg: [
+            {i: 'accuracy_chart', x: 0, y: 0, w: 3, h: 2},
+            {i: 'confidence_distribution', x: 0, y: 2, w: 3, h: 2},
+            {i: 'model_comparison', x: 0, y: 4, w: 3, h: 2},
+            {i: 'pattern_heatmap', x: 0, y: 6, w: 3, h: 2},
+            {i: 'streak_analysis', x: 0, y: 8, w: 3, h: 2},
+            {i: 'transition_matrix', x: 0, y: 10, w: 3, h: 2},
+        ],
+        md: [
+            {i: 'accuracy_chart', x: 0, y: 0, w: 2, h: 2},
+            {i: 'confidence_distribution', x: 0, y: 2, w: 2, h: 2},
+            {i: 'model_comparison', x: 0, y: 4, w: 2, h: 2},
+            {i: 'pattern_heatmap', x: 0, y: 6, w: 2, h: 2},
+            {i: 'streak_analysis', x: 0, y: 8, w: 2, h: 2},
+            {i: 'transition_matrix', x: 0, y: 10, w: 2, h: 2},
         ]
     }
 }

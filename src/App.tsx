@@ -45,6 +45,7 @@ const Championships = lazy(() => import('@pages/Championships'));
 const LeagueOverview = lazy(() => import('@pages/LeagueOverview'));
 const FansCommunity = lazy(() => import('@pages/FansCommunity'));
 const Statistics = lazy(() => import('@pages/Statistics'));
+const Analytics = lazy(() => import('@pages/Analytics'));
 const PageNotFound = lazy(() => import('@pages/PageNotFound'));
 const MatchSummary = lazy(() => import('@pages/MatchSummary'));
 const MatchOverview = lazy(() => import('@pages/MatchOverview'));
@@ -119,6 +120,7 @@ const App: React.FC = () => {
                                                 <Route path="/league-overview" element={<LeagueOverview />} />
                                                 <Route path="/fans-community" element={<FansCommunity />} />
                                                 <Route path="/statistics" element={<Statistics />} />
+                                                <Route path="/analytics" element={<Analytics />} />
                                                 <Route path="/match-summary" element={<MatchSummary />} />
                                                 <Route path="/match-overview" element={<MatchOverview />} />
                                                 <Route path="/player-profile" element={<PlayerProfile />} />

@@ -28,6 +28,10 @@ const LINKS = [
                 path: '/statistics'
             },
             {
+                title: 'Analytics',
+                path: '/analytics'
+            },
+            {
                 title: 'Error page',
                 path: '/404'
             }
