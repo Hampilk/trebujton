@@ -4,13 +4,25 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@ui/*": ["./src/ui/*"],
+      "@pages/*": ["./src/pages/*"],
+      "@assets/*": ["./src/assets/*"],
+      "@styles/*": ["./src/styles/*"],
+      "@db/*": ["./src/db/*"],
+      "@hooks/*": ["./src/hooks/*"],
+      "@layout/*": ["./src/layout/*"],
+      "@fonts/*": ["./src/fonts/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@widgets/*": ["./src/widgets/*"],
+      "@contexts/*": ["./src/contexts/*"],
+      "@constants/*": ["./src/constants/*"],
+      "@features/*": ["./src/features/*"],
+      "@providers/*": ["./src/providers/*"]
     },
-    "noImplicitAny": false,
-    "noUnusedParameters": false,
     "skipLibCheck": true,
-    "allowJs": true,
-    "noUnusedLocals": false,
-    "strictNullChecks": false
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
   }
 }

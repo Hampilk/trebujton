@@ -13,15 +13,33 @@
     "noEmit": true,
     "jsx": "react-jsx",
     /* Linting */
-    "strict": false,
+    "strict": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitAny": false,
-    "noFallthroughCasesInSwitch": false,
+    "noFallthroughCasesInSwitch": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
 
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@ui/*": ["./src/ui/*"],
+      "@pages/*": ["./src/pages/*"],
+      "@assets/*": ["./src/assets/*"],
+      "@styles/*": ["./src/styles/*"],
+      "@db/*": ["./src/db/*"],
+      "@hooks/*": ["./src/hooks/*"],
+      "@layout/*": ["./src/layout/*"],
+      "@fonts/*": ["./src/fonts/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@widgets/*": ["./src/widgets/*"],
+      "@contexts/*": ["./src/contexts/*"],
+      "@constants/*": ["./src/constants/*"],
+      "@features/*": ["./src/features/*"],
+      "@providers/*": ["./src/providers/*"]
     }
   },
   "include": ["src"]
