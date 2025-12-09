@@ -447,6 +447,23 @@ const layouts: LayoutDefinition = {
             {i: 'notifications_schedule', x: 0, y: 7, w: 1, h: 1},
             {i: 'password', x: 1, y: 6, w: 1, h: 2}
         ]
+    },
+    predictions: {
+        xl: [
+            {i: 'predictions_view', x: 0, y: 0, w: 2, h: 3},
+            {i: 'ensemble_breakdown', x: 2, y: 0, w: 2, h: 3},
+            {i: 'prediction_analytics', x: 0, y: 3, w: 4, h: 2}
+        ],
+        lg: [
+            {i: 'predictions_view', x: 0, y: 0, w: 2, h: 3},
+            {i: 'ensemble_breakdown', x: 0, y: 3, w: 2, h: 3},
+            {i: 'prediction_analytics', x: 2, y: 0, w: 1, h: 3}
+        ],
+        md: [
+            {i: 'predictions_view', x: 0, y: 0, w: 2, h: 3},
+            {i: 'ensemble_breakdown', x: 0, y: 3, w: 2, h: 3},
+            {i: 'prediction_analytics', x: 0, y: 6, w: 2, h: 3}
+        ]
     }
 }
 

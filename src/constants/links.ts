@@ -90,6 +90,16 @@ const LINKS = [
                 path: '/product'
             }
         ]
+    },
+    {
+        title: 'Analytics',
+        icon: 'chart',
+        pages: [
+            {
+                title: 'Predictions',
+                path: '/predictions'
+            }
+        ]
     }
 ];
 

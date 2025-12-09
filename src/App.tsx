@@ -57,6 +57,7 @@ const Product = lazy(() => import('@pages/Product'));
 const Login = lazy(() => import('@pages/Login'));
 const SignUp = lazy(() => import('@pages/SignUp'));
 const Settings = lazy(() => import('@pages/Settings'));
+const Predictions = lazy(() => import('@pages/Predictions'));
 
 const App: React.FC = () => {
     const appRef = useRef<HTMLDivElement>(null);
@@ -130,6 +131,7 @@ const App: React.FC = () => {
                                                 <Route path="/login" element={<Login />} />
                                                 <Route path="/sign-up" element={<SignUp />} />
                                                 <Route path="/settings" element={<Settings />} />
+                                                <Route path="/predictions" element={<Predictions />} />
                                             </Routes>
                                         </Suspense>
                                     </div>
