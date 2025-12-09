@@ -3,9 +3,13 @@ import React, { StrictMode, Component, ReactNode, ErrorInfo } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ThemeProvider } from '@contexts/themeContext';
 import { ShopProvider } from '@contexts/shopContext';
+import { AuthProvider } from '@contexts/AuthContext';
 import StyledComponentsProvider from '@providers/StyledComponentsProvider';
+import { queryClient } from '@/lib/queryClient';
 import App from './App';
 import store from './app/store';
 const rootElement = document.getElementById('root');
@@ -24,20 +28,25 @@ interface AppProvidersProps {
 
 const AppProviders: React.FC<AppProvidersProps> = ({ children }) => (
   <Provider store={store}>
-    <BrowserRouter
-      future={{
-        v7_startTransition: true,
-        v7_relativeSplatPath: true,
-      }}
-    >
-      <ThemeProvider>
-        <StyledComponentsProvider>
-          <ShopProvider>
-            {children}
-          </ShopProvider>
-        </StyledComponentsProvider>
-      </ThemeProvider>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      >
+        <AuthProvider>
+          <ThemeProvider>
+            <StyledComponentsProvider>
+              <ShopProvider>
+                {children}
+              </ShopProvider>
+            </StyledComponentsProvider>
+          </ThemeProvider>
+        </AuthProvider>
+      </BrowserRouter>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   </Provider>
 );
 
