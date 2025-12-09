@@ -28,16 +28,14 @@ const Navigator = ({active, setActive}) => {
         if (swiper) {
             swiper.slideToLoop(parseInt(active) - 1);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [swiper, active]);
+        }, [swiper, active]);
 
     useEffect(() => {
         if (swiper) {
             swiper.changeLanguageDirection(direction);
             swiper.update();
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [swiper, direction]);
+        }, [swiper, direction]);
 
     return (
         <div className={`${styles.navigator} ${theme === 'light' ? styles.light : styles.dark}`}>

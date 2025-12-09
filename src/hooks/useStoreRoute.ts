@@ -11,8 +11,8 @@ const useStoreRoute = (): boolean => {
 
         return () => {
             setIsStoreRoute(false);
-        }
-    }, [location]);
+        };
+    }, [location, storeRoutes]);
 
     return isStoreRoute;
 };
