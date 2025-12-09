@@ -16,9 +16,7 @@ import countryList from 'react-select-country-list';
 import {City} from 'country-state-city';
 
 const Profile = () => {
-    // eslint-disable-next-line no-unused-vars
     const [selectedCountry, setSelectedCountry] = useState();
-    // eslint-disable-next-line no-unused-vars
     const [selectedCity, setSelectedCity] = useState();
     const [cities, setCities] = useState([]);
     const {register, handleSubmit, formState: {errors}, reset, control} = useForm({
@@ -35,7 +33,7 @@ const Profile = () => {
     });
 
     const getCountriesOptions = () => {
-        let countries = countryList().getData();
+        const countries = countryList().getData();
         for (let i = 0; i < countries.length; i++) {
             if (countries[i].value === 'RU') {
                 countries[i].label = 'Russia [terrorist state]';
@@ -47,7 +45,7 @@ const Profile = () => {
     const handleCountryChange = (country) => {
         setSelectedCountry(country);
         setSelectedCity(null);
-        let options = [];
+        const options = [];
         const rawData = City.getCitiesOfCountry(country.value);
         rawData.map(item => options.push({value: item.name, label: item.name}));
         setCities(options);

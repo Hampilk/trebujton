@@ -48,14 +48,12 @@ const useElementScroll = () => {
         };
 
         if (current) {
-
             if ('ResizeObserver' in window) {
                 new ResizeObserver(trigger).observe(current);
             }
             trigger();
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    } , [ref, contentHeight]);
+    }, [ref, contentHeight]);
 
     return { ref, isOverflown, isTop, isBottom };
 }
