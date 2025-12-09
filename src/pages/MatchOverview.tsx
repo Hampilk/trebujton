@@ -18,7 +18,7 @@ const widgets = {
     teams_lineups: <TeamsLineups />,
     active_actions: <ActiveActionsChart />,
     passes_polar_chart: <PassesPolarChart />,
-    player_full_info: <PlayerFullInfo />,
+    player_full_info: <PlayerFullInfo playerId="toni-kroos" />,
     merch: <Merch />,
     support: <GeneralSupport />
 }
