@@ -1,0 +1,115 @@
+# ML Pipeline Configuration
+
+# Database Settings
+database:
+  supabase_url: "${SUPABASE_URL}"
+  supabase_key: "${SUPABASE_ANON_KEY}"
+  schema: "public"
+
+# Model Configuration
+models:
+  full_time:
+    name: "Full-time Result Predictor"
+    algorithm: "LogisticRegression"
+    target_column: "full_time_result"
+    features:
+      - team_strength_diff
+      - home_advantage
+      - recent_form
+      - head_to_head
+      - league_position_diff
+      - goals_scored_avg
+      - goals_conceded_avg
+    hyperparameters:
+      C: 1.0
+      max_iter: 1000
+      random_state: 42
+  
+  half_time:
+    name: "Half-time Result Predictor"
+    algorithm: "RandomForestClassifier"
+    target_column: "half_time_result"
+    features:
+      - team_strength_diff
+      - home_advantage
+      - recent_form
+      - goals_scored_ht
+      - goals_conceded_ht
+    hyperparameters:
+      n_estimators: 100
+      max_depth: 10
+      random_state: 42
+  
+  pattern:
+    name: "Pattern Recognition Predictor"
+    algorithm: "XGBClassifier"
+    target_column: "pattern_match"
+    features:
+      - scoring_pattern
+      - defensive_pattern
+      - momentum_indicators
+      - historical_patterns
+      - situational_factors
+    hyperparameters:
+      n_estimators: 200
+      max_depth: 6
+      learning_rate: 0.1
+      random_state: 42
+
+# Training Configuration
+training:
+  test_size: 0.2
+  validation_size: 0.1
+  cross_validation_folds: 5
+  stratification_columns:
+    - league
+    - season
+  random_state: 42
+  
+  # Feature Engineering
+  feature_engineering:
+    scaling_method: "standard"  # standard, minmax, robust
+    encoding_method: "onehot"   # onehot, label, target
+    handle_missing: "impute"    # drop, impute, flag
+    outlier_treatment: "winsorize"  # drop, cap, winsorize
+    
+  # Model Evaluation
+  metrics:
+    primary: "accuracy"
+    secondary:
+      - "f1_score"
+      - "precision"
+      - "recall"
+      - "roc_auc"
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "json"
+  output:
+    - "stdout"
+    - "file:logs/system_logs.log"
+  rotation:
+    size: "10MB"
+    backup_count: 5
+
+# Output Configuration
+output:
+  model_registry_path: "ml/models/model_registry.json"
+  model_artifacts_path: "ml/models"
+  logs_path: "logs"
+  reports_path: "reports"
+  
+# API Configuration
+api:
+  host: "0.0.0.0"
+  port: 8000
+  reload: false
+  
+# Auto-reinforcement Settings
+auto_reinforcement:
+  enabled: true
+  performance_threshold: 0.95
+  minimum_predictions: 100
+  decay_alert_threshold: 0.1
+  retraining_schedule: "weekly"
