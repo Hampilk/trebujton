@@ -19,7 +19,7 @@ import WidgetGroup from '@components/WidgetGroup';
 
 const ClubSummary = () => {
     const widgets = useMemo(() => ({
-        team_stats: <TeamStats/>,
+        team_stats: <TeamStats teamId="bayern" />,
         attendance: (
             <WidgetGroup>
                 <Points/>

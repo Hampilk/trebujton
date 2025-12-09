@@ -24,7 +24,7 @@ const widgets = {
     vertical_progress: <PlayerVerticalProgress />,
     speed: <PlayerSpeed />,
     championship_position: <ChampionshipPositionChart />,
-    team_compare: <TeamCompareChart />,
+    team_compare: <TeamCompareChart teamAId="bayern" teamBId="barcelona" />,
     live_matches: <LiveMatches variant="small" />
 }
 

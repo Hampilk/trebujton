@@ -18,6 +18,16 @@ export interface TeamStats {
   goals_for: number;
   goals_against: number;
   form: string;
+  matches_played: number;
+  points: number;
+  goal_difference: number;
+}
+
+export interface TeamComparisonStats {
+  team_id: string;
+  metric_name: string;
+  metric_value: number;
+  comparison_range: 'week' | 'month' | 'year';
 }
 
 export const useTeams = (league_id?: string) => {
@@ -67,6 +77,23 @@ export const useTeamStats = (team_id: string) => {
 
       if (error) throw error;
       return data as TeamStats;
+    },
+    enabled: !!team_id,
+  });
+};
+
+export const useTeamComparisonStats = (team_id: string, range: 'week' | 'month' | 'year') => {
+  return useQuery({
+    queryKey: ['team-comparison-stats', team_id, range],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('team_comparison_stats')
+        .select('*')
+        .eq('team_id', team_id)
+        .eq('comparison_range', range);
+
+      if (error) throw error;
+      return data as TeamComparisonStats[];
     },
     enabled: !!team_id,
   });
