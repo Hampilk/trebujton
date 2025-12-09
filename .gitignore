@@ -41,3 +41,48 @@ coverage/
 # OS
 .DS_Store
 Thumbs.db
+
+# ML Pipeline
+# Model artifacts
+ml/models/*.joblib
+ml/models/*.pkl
+ml/models/*.h5
+ml/models/*.json
+ml/models/model_registry.json
+
+# ML Logs
+logs/
+*.log
+ml/logs/
+
+# ML Reports
+reports/
+ml/reports/
+
+# ML Cache
+.cache/
+__pycache__/
+*.pyc
+ml/__pycache__/
+ml/**/__pycache__/
+ml/**/**/*.pyc
+
+# Environment
+ml/.env
+.env
+.env.local
+.env.*.local
+
+# Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Jupyter
+.ipynb_checkpoints
+
+# Coverage
+.coverage
+htmlcov/
+.pytest_cache/
