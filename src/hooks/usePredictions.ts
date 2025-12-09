@@ -1,5 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import {
+  getPredictions,
+  getPrediction,
+  createPrediction,
+  updatePredictionResult,
+  getPredictionStats,
+  getPredictionAnalysis,
+  type PredictionFilters,
+  type PredictionInput,
+  type PredictionResultUpdate,
+  type PredictionStats,
+  type PredictionAnalysis,
+} from '@/lib/services/predictions';
+import { handleApiError } from '@/lib/apiErrors';
 
 export interface Prediction {
   id: string;
@@ -13,32 +27,28 @@ export interface Prediction {
     half_time: { prediction: string; confidence: number };
     pattern: { prediction: string; confidence: number };
     weights_used: { ft: number; ht: number; pt: number };
+    conflict?: {
+      detected: boolean;
+      severity: 'low' | 'medium' | 'high';
+      message: string;
+    };
   };
   status: 'pending' | 'correct' | 'incorrect';
   created_at: string;
   resolved_at?: string;
 }
 
-export const usePredictions = (filters?: {
-  match_id?: string;
-  status?: string;
-}) => {
+export const usePredictions = (filters?: PredictionFilters) => {
   return useQuery({
     queryKey: ['predictions', filters],
     queryFn: async () => {
-      let query = supabase.from('predictions').select('*');
-
-      if (filters?.match_id) {
-        query = query.eq('match_id', filters.match_id);
+      try {
+        const data = await getPredictions(filters);
+        return data;
+      } catch (error) {
+        handleApiError(error as Error);
+        throw error;
       }
-      if (filters?.status) {
-        query = query.eq('status', filters.status);
-      }
-
-      const { data, error } = await query.order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data as Prediction[];
     },
   });
 };
@@ -47,14 +57,13 @@ export const usePrediction = (id: string) => {
   return useQuery({
     queryKey: ['predictions', id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('predictions')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (error) throw error;
-      return data as Prediction;
+      try {
+        const data = await getPrediction(id);
+        return data;
+      } catch (error) {
+        handleApiError(error as Error);
+        throw error;
+      }
     },
     enabled: !!id,
   });
@@ -64,18 +73,18 @@ export const useCreatePrediction = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (prediction: Omit<Prediction, 'id' | 'created_at' | 'resolved_at'>) => {
-      const { data, error } = await supabase
-        .from('predictions')
-        .insert(prediction)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+    mutationFn: async (input: PredictionInput) => {
+      try {
+        const data = await createPrediction(input);
+        return data;
+      } catch (error) {
+        handleApiError(error as Error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['predictions'] });
+      queryClient.invalidateQueries({ queryKey: ['prediction-stats'] });
     },
   });
 };
@@ -84,10 +93,49 @@ export const usePredictionStats = () => {
   return useQuery({
     queryKey: ['prediction-stats'],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_prediction_stats');
+      try {
+        const data = await getPredictionStats();
+        return data;
+      } catch (error) {
+        handleApiError(error as Error);
+        throw error;
+      }
+    },
+  });
+};
 
-      if (error) throw error;
-      return data;
+export const usePredictionAnalysis = () => {
+  return useQuery({
+    queryKey: ['prediction-analysis'],
+    queryFn: async () => {
+      try {
+        const data = await getPredictionAnalysis();
+        return data;
+      } catch (error) {
+        handleApiError(error as Error);
+        throw error;
+      }
+    },
+  });
+};
+
+export const useUpdatePredictionResult = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, resultUpdate }: { id: string; resultUpdate: PredictionResultUpdate }) => {
+      try {
+        const data = await updatePredictionResult(id, resultUpdate);
+        return data;
+      } catch (error) {
+        handleApiError(error as Error);
+        throw error;
+      }
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['predictions'] });
+      queryClient.invalidateQueries({ queryKey: ['prediction-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['predictions', variables.id] });
     },
   });
 };
