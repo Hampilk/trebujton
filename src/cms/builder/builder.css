@@ -1,0 +1,218 @@
+/* Widget Picker Styles */
+.widget-picker {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.widget-picker .widget-chip {
+  transition: all 0.2s ease;
+}
+
+.widget-picker .widget-chip:hover {
+  transform: translateY(-1px);
+  border-color: #3b82f6;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Builder Layout Panel Styles */
+.builder-layout-panel {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 8px 0;
+}
+
+.builder-layout-panel h4 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Widget Grid Styles */
+.widget-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  padding: 16px;
+}
+
+.widget-grid-item {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.widget-grid-item:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.widget-grid-item.selected {
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+}
+
+/* Properties Panel */
+.properties-panel {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  min-height: 200px;
+}
+
+.properties-panel h4 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Form Styles for Widget Properties */
+.widget-property-field {
+  margin-bottom: 12px;
+}
+
+.widget-property-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.widget-property-field input,
+.widget-property-field select,
+.widget-property-field textarea {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+.widget-property-field input:focus,
+.widget-property-field select:focus,
+.widget-property-field textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Category Filter */
+.category-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.category-filter button {
+  padding: 4px 12px;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.category-filter button:hover {
+  background: #e5e7eb;
+}
+
+.category-filter button.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .widget-picker {
+    padding: 8px;
+  }
+  
+  .widget-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px;
+    padding: 8px;
+  }
+  
+  .builder-layout-panel {
+    padding: 12px;
+  }
+  
+  .properties-panel {
+    padding: 12px;
+  }
+}
+
+/* Drag and drop styles */
+.widget-dragging {
+  opacity: 0.5;
+  transform: rotate(5deg);
+}
+
+.drop-zone {
+  border: 2px dashed #3b82f6;
+  background-color: #eff6ff;
+  border-radius: 8px;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #3b82f6;
+  font-weight: 500;
+}
+
+.drop-zone.active {
+  border-color: #10b981;
+  background-color: #ecfdf5;
+  color: #10b981;
+}
+
+/* Loading states */
+.widget-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: #6b7280;
+}
+
+.widget-loading::after {
+  content: '';
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e5e7eb;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 8px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Success/Error states */
+.widget-success {
+  border-color: #10b981;
+  background-color: #ecfdf5;
+}
+
+.widget-error {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+  color: #dc2626;
+}

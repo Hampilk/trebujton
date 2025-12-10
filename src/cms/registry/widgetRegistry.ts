@@ -9,15 +9,23 @@ export interface WidgetStyleVariant {
   overrides?: Record<string, any>;
 }
 
+export interface WidgetPropsDefinition {
+  type: string;
+  default: any;
+  description?: string;
+  required?: boolean;
+}
+
 export interface WidgetDefinition {
   id: string;
   name: string;
   category: string;
   preview?: string;
   defaultSize: { w: number; h: number };
-  props: Record<string, any>;
+  props: Record<string, WidgetPropsDefinition>;
   Component: React.FC<any>;
   styleVariants?: WidgetStyleVariant[];
+  meta?: Record<string, any>; // Raw meta block for builder UIs
 }
 
 // Use Vite's glob import to auto-discover all widget components
@@ -55,6 +63,7 @@ Object.entries(widgetModules).forEach(([path, module]: [string, any]) => {
         props: meta.props || {},
         Component: Component,
         styleVariants: meta.styleVariants || [],
+        meta: meta, // Store the raw meta block
       };
 
       widgetRegistry.push(widgetDef);
@@ -78,4 +87,10 @@ export const getWidgetsByCategory = (category: string): WidgetDefinition[] => {
 export const getCategories = (): string[] => {
   const categories = new Set(widgetRegistry.map((widget) => widget.category));
   return Array.from(categories).sort();
+};
+
+// Helper function to get widget prop schema for builder UIs
+export const getWidgetPropSchema = (widgetId: string): Record<string, WidgetPropsDefinition> | undefined => {
+  const widget = getWidgetById(widgetId);
+  return widget?.props;
 };

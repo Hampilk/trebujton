@@ -18,8 +18,13 @@ import {FINALS_OPTIONS} from '@constants/selection_options';
 // utils
 import {getRandomInt} from '@utils/helpers';
 
-const MatchResultFinals = () => {
-    const [selected, setSelected] = useState(FINALS_OPTIONS[0].value);
+const MatchResultFinals = ({ 
+  selectedStage = "quarter-finals",
+  showLoading = true,
+  showError = true,
+  title = "Knockout Stage"
+}) => {
+    const [selected, setSelected] = useState(selectedStage);
 
     // Get knockout matches from Supabase
     const { data: knockoutMatches, isLoading, error } = useKnockoutMatches(selected);
@@ -44,7 +49,7 @@ const MatchResultFinals = () => {
     const emptyStageData = [];
 
     // Show loading state
-    if (isLoading) {
+    if (isLoading && showLoading) {
         return (
             <Spring className="card">
                 <SelectionList options={FINALS_OPTIONS} active={selected} setActive={setSelected} />
@@ -58,7 +63,7 @@ const MatchResultFinals = () => {
     }
 
     // Show error state
-    if (error) {
+    if (error && showError) {
         return (
             <Spring className="card">
                 <SelectionList options={FINALS_OPTIONS} active={selected} setActive={setSelected} />
@@ -96,5 +101,18 @@ const MatchResultFinals = () => {
         </Spring>
     )
 }
+
+MatchResultFinals.meta = {
+  id: "match_result",
+  name: "Match Results",
+  category: "Football",
+  defaultSize: { w: 3, h: 3 },
+  props: {
+    selectedStage: { type: "string", default: "quarter-finals", description: "Selected knockout stage" },
+    showLoading: { type: "boolean", default: true, description: "Whether to show loading state" },
+    showError: { type: "boolean", default: true, description: "Whether to show error state" },
+    title: { type: "string", default: "Knockout Stage", description: "Widget title" }
+  }
+};
 
 export default MatchResultFinals
