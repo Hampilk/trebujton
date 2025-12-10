@@ -1,4 +1,4 @@
-# WinMix CMS - Phase 1: Widget Registry & Renderer
+# WinMix CMS - Widget Registry & Runtime Rendering
 
 ## Overview
 
@@ -47,6 +47,7 @@ A safe, robust component for rendering widgets with error handling and loading s
 - Suspense for handling async loading
 - Fallback UI for unknown widgets
 - Type-safe props passing
+- Style variant support
 
 **Usage:**
 ```jsx
@@ -55,7 +56,52 @@ import WidgetRenderer from '@cms/runtime/WidgetRenderer';
 <WidgetRenderer 
   type="team_stats" 
   props={{ teamId: 'bayern', season: '2024' }}
+  variant="default"
+  instanceId="widget-123"
 />
+```
+
+### CMS Page Runtime (`/components/CmsPageRuntime.jsx`)
+
+A wrapper component that enables pages to dynamically load layouts from Supabase while maintaining fallback to static widgets.
+
+**Features:**
+- Fetches page layouts from Supabase using React Query
+- Graceful fallback to static widgets when CMS unavailable
+- Integrates with Redux for state management
+- Applies theme overrides via CmsThemeProvider
+- Comprehensive error handling and loading states
+
+**Usage:**
+```jsx
+import CmsPageRuntime from '@components/CmsPageRuntime';
+
+<CmsPageRuntime 
+  id="admin_dashboard_page" 
+  widgets={staticWidgets}
+  cmsSlug="admin-dashboard"
+  onCmsDataLoaded={(data) => console.log('CMS loaded:', data)}
+  onFallbackMode={(reason) => console.log('Fallback:', reason)}
+/>
+```
+
+### Theme System (`/theme/ThemeProvider.jsx`)
+
+Provides theme variants and CSS variable injection for CMS pages.
+
+**Features:**
+- Multiple theme variants (default, dark, etc.)
+- CSS custom properties for dynamic theming
+- Page-level and widget-level theme overrides
+- Light/dark mode support
+
+**Usage:**
+```jsx
+import { CmsThemeProvider } from '@cms/theme/ThemeProvider';
+
+<CmsThemeProvider defaultVariant="dark" defaultMode="dark">
+  <AppGrid {...props} />
+</CmsThemeProvider>
 ```
 
 ## Widget Definition Interface
@@ -69,6 +115,16 @@ interface WidgetDefinition {
   defaultSize: { w: number; h: number }; // Default grid size
   props: Record<string, any>;          // Props schema
   Component: React.FC<any>;            // React component
+  styleVariants?: WidgetStyleVariant[]; // Style variants
+}
+
+interface WidgetStyleVariant {
+  slug: string;                        // Variant identifier
+  label: string;                      // Display label
+  description?: string;               // Optional description
+  supportedTokens?: string[];          // Supported theme tokens
+  cssClass?: string;                   // Additional CSS classes
+  overrides?: Record<string, any>;     // Style overrides
 }
 ```
 
@@ -107,10 +163,89 @@ TeamStats.meta = {
     teamId: { type: 'string', default: 'bayern' },
     season: { type: 'string', default: '2024' },
   },
+  styleVariants: [
+    {
+      slug: 'default',
+      label: 'Default',
+      cssClass: 'team-stats-default',
+    },
+    {
+      slug: 'compact',
+      label: 'Compact',
+      cssClass: 'team-stats-compact',
+    },
+  ],
 };
 
 export default TeamStats;
 ```
+
+## Runtime Rendering
+
+### Making Pages CMS-Driven
+
+To enable CMS-driven layouts for a page:
+
+1. **Replace AppGrid with CmsPageRuntime:**
+   ```jsx
+   // Before
+   <AppGrid id="my_page" widgets={widgets} />
+   
+   // After
+   <CmsPageRuntime 
+     id="my_page" 
+     widgets={widgets}
+     cmsSlug="my-page"
+   />
+   ```
+
+2. **Create CMS Page in Supabase:**
+   ```sql
+   INSERT INTO pages (slug, title, is_published) 
+   VALUES ('my-page', 'My Page', true);
+   ```
+
+3. **Create Layout Data:**
+   ```javascript
+   const layoutData = {
+     layout: [
+       { i: 'widget1', x: 0, y: 0, w: 2, h: 2 },
+       { i: 'widget2', x: 2, y: 0, w: 2, h: 2 },
+     ],
+     instances: {
+       widget1: {
+         type: 'team_stats',
+         props: { teamId: 'bayern' },
+         variant: 'default',
+       },
+       widget2: {
+         type: 'league_table',
+         props: { league: 'bundesliga' },
+         variant: 'compact',
+       },
+     },
+     theme_overrides: {
+       variant: 'dark',
+       mode: 'dark',
+     },
+   };
+   ```
+
+4. **Save Layout:**
+   ```javascript
+   import { savePageLayout, getPageBySlug } from '@services/cms/pageLayouts';
+   
+   const page = await getPageBySlug('my-page');
+   await savePageLayout(page.id, layoutData);
+   ```
+
+### Fallback Behavior
+
+- **No CMS slug:** Renders static widgets immediately
+- **Page not found:** Falls back to static widgets
+- **Layout not found:** Falls back to static widgets  
+- **Network error:** Shows error state with retry option
+- **Loading:** Shows loading spinner while fetching CMS data
 
 ## Example Widgets
 
@@ -130,11 +265,23 @@ export default TeamStats;
 
 ## Testing
 
-Tests are located in `/src/cms/__tests__/`
+Tests are located in:
+- `/src/cms/__tests__/` - CMS component tests
+- `/src/components/__tests__/CmsPageRuntime.test.jsx` - Runtime component tests
+- `/src/test/integration/cms-layout-integration.test.js` - Integration tests
+- `/src/test/services/cms/pageLayouts.test.js` - Service layer tests
 
 Run tests:
 ```bash
-npm test
+npm test -- CmsPageRuntime
+npm test -- cms-layout-integration
+npm test -- pageLayouts
+```
+
+Storybook stories are available for visual testing:
+```bash
+npm run storybook
+# Navigate to "Components/CmsPageRuntime"
 ```
 
 ## Import Paths
@@ -144,29 +291,52 @@ The CMS system is available via the `@cms` alias:
 ```typescript
 import { widgetRegistry } from '@cms/registry/widgetRegistry';
 import { WidgetRenderer } from '@cms/runtime/WidgetRenderer';
+import { CmsThemeProvider } from '@cms/theme/ThemeProvider';
 import type { WidgetDefinition } from '@cms/registry/widgetRegistry';
 ```
 
-## Type Safety
+## Redux Integration
 
-The system is fully typed with TypeScript:
-- Widget definitions are type-safe
-- Component props are validated
-- Helper functions have proper return types
+The CMS system includes a Redux slice for managing page state:
 
-## Error Handling
+```javascript
+import { 
+  selectCmsPageLayout,
+  selectCmsPageInstances,
+  selectCmsPageThemeOverrides,
+  loadCmsPageLayout 
+} from '@redux/slices/cmsPageSlice';
+```
 
-The WidgetRenderer includes multiple layers of error handling:
+**State Structure:**
+```javascript
+{
+  cmsPage: {
+    currentPage: null,        // Current page metadata
+    layout: null,             // Layout array from CMS
+    instances: {},           // Widget instances
+    themeOverrides: {},      // Theme configuration
+    isLoading: false,        // Loading state
+    isInitialized: false,     // Whether CMS data loaded
+    error: null,            // Error information
+  }
+}
+```
 
-1. **Unknown Widget:** Shows a yellow warning box
-2. **Widget Error:** Shows a red error box with retry option
-3. **Loading State:** Shows a loading message during async operations
+## Performance Considerations
 
-## Future Enhancements (Phase 2+)
+- **Caching:** CMS data cached for 5 minutes in React Query
+- **Memoization:** Widget components and layout data are memoized
+- **Lazy Loading:** Widgets support code splitting
+- **Error Boundaries:** Prevent widget errors from crashing pages
+- **Graceful Degradation:** Fallback to static widgets when CMS unavailable
 
-- Visual Page Builder UI
-- Drag-and-drop widget placement
-- Widget configuration editor
-- AI-powered widget recommendations
-- Real-time preview
-- Widget marketplace
+## Future Enhancements
+
+- **Visual Page Builder** - Drag-and-drop interface for creating layouts
+- **AI-Powered Recommendations** - Suggest widgets based on content
+- **Real-time Collaboration** - Multiple users editing layouts simultaneously
+- **Version Control** - Track and revert layout changes
+- **A/B Testing** - Test different layout variations
+- **Widget Marketplace** - Community-contributed widgets
+- **Advanced Analytics** - Track widget performance and user engagement
