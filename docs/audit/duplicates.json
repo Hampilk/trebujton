@@ -1,0 +1,529 @@
+{
+  "shadows": [
+    {
+      "jsFile": "src/hooks/useEvents.js",
+      "tsFile": "src/hooks/useEvents.ts"
+    },
+    {
+      "jsFile": "src/hooks/useLeagues.js",
+      "tsFile": "src/hooks/useLeagues.ts"
+    },
+    {
+      "jsFile": "src/hooks/useMatches.js",
+      "tsFile": "src/hooks/useMatches.ts"
+    },
+    {
+      "jsFile": "src/hooks/usePlayers.js",
+      "tsFile": "src/hooks/usePlayers.ts"
+    },
+    {
+      "jsFile": "src/hooks/useProducts.js",
+      "tsFile": "src/hooks/useProducts.ts"
+    },
+    {
+      "jsFile": "src/hooks/useTeams.js",
+      "tsFile": "src/hooks/useTeams.ts"
+    },
+    {
+      "jsFile": "src/hooks/useWinmixQuery.js",
+      "tsFile": "src/hooks/useWinmixQuery.ts"
+    },
+    {
+      "jsFile": "src/lib/supabase.js",
+      "tsFile": "src/lib/supabase.ts"
+    },
+    {
+      "jsFile": "src/services/eventService.js",
+      "tsFile": "src/services/eventService.ts"
+    },
+    {
+      "jsFile": "src/services/leagueService.js",
+      "tsFile": "src/services/leagueService.ts"
+    },
+    {
+      "jsFile": "src/services/matchService.js",
+      "tsFile": "src/services/matchService.ts"
+    },
+    {
+      "jsFile": "src/services/playerService.js",
+      "tsFile": "src/services/playerService.ts"
+    },
+    {
+      "jsFile": "src/services/productService.js",
+      "tsFile": "src/services/productService.ts"
+    },
+    {
+      "jsFile": "src/services/teamService.js",
+      "tsFile": "src/services/teamService.ts"
+    },
+    {
+      "jsFile": "src/services/userService.js",
+      "tsFile": "src/services/userService.ts"
+    },
+    {
+      "jsFile": "src/services/winmixApi.js",
+      "tsFile": "src/services/winmixApi.ts"
+    },
+    {
+      "jsFile": "src/services/winmixproService.js",
+      "tsFile": "src/services/winmixproService.ts"
+    },
+    {
+      "jsFile": "src/test/setup.js",
+      "tsFile": "src/test/setup.ts"
+    },
+    {
+      "jsFile": "src/integrations/supabase/types.js",
+      "tsFile": "src/integrations/supabase/types.ts"
+    },
+    {
+      "jsFile": "src/test/e2e/auth-flow.spec.js",
+      "tsFile": "src/test/e2e/auth-flow.spec.ts"
+    },
+    {
+      "jsFile": "src/test/msw/handlers.js",
+      "tsFile": "src/test/msw/handlers.ts"
+    },
+    {
+      "jsFile": "src/test/msw/server.js",
+      "tsFile": "src/test/msw/server.ts"
+    },
+    {
+      "jsFile": "src/test/services/winmixApi.test.js",
+      "tsFile": "src/test/services/winmixApi.test.ts"
+    },
+    {
+      "jsFile": "src/winmixpro/hooks/useFeatureFlags.js",
+      "tsFile": "src/winmixpro/hooks/useFeatureFlags.ts"
+    },
+    {
+      "jsFile": "src/winmixpro/hooks/useLocalStorage.js",
+      "tsFile": "src/winmixpro/hooks/useLocalStorage.ts"
+    },
+    {
+      "jsFile": "src/winmixpro/hooks/usePersistentState.js",
+      "tsFile": "src/winmixpro/hooks/usePersistentState.ts"
+    },
+    {
+      "jsFile": "src/winmixpro/hooks/useShimmer.js",
+      "tsFile": "src/winmixpro/hooks/useShimmer.ts"
+    },
+    {
+      "jsFile": "src/winmixpro/hooks/useTheme.js",
+      "tsFile": "src/winmixpro/hooks/useTheme.ts"
+    },
+    {
+      "jsFile": "src/winmixpro/data/dashboard.js",
+      "tsFile": "src/winmixpro/data/dashboard.ts"
+    },
+    {
+      "jsFile": "src/winmixpro/lib/feature-flags.js",
+      "tsFile": "src/winmixpro/lib/feature-flags.ts"
+    },
+    {
+      "jsFile": "src/winmixpro/lib/reset-state.js",
+      "tsFile": "src/winmixpro/lib/reset-state.ts"
+    },
+    {
+      "jsFile": "src/winmixpro/lib/theme-manager.js",
+      "tsFile": "src/winmixpro/lib/theme-manager.ts"
+    },
+    {
+      "jsFile": "src/winmixpro/lib/utils.js",
+      "tsFile": "src/winmixpro/lib/utils.ts"
+    },
+    {
+      "jsFile": "src/winmixpro/types/index.js",
+      "tsFile": "src/winmixpro/types/index.ts"
+    }
+  ],
+  "typeDups": [
+    {
+      "jsFile": "src/types.js",
+      "tsFile": "src/types.ts"
+    }
+  ],
+  "fileDuplicates": [
+    {
+      "type": "exact_content",
+      "files": [
+        "src/integrations/health-check.js",
+        "src/integrations/admin-model-status/service.js",
+        "src/integrations/admin-prediction-review/service.js",
+        "src/integrations/models/service.js",
+        "src/test/admin/feature-import-export.test.jsx",
+        "src/test/admin/theme-import-export.test.jsx",
+        "src/test/components/AuthProvider.test.jsx",
+        "src/test/widgets/LeagueStandings.test.jsx",
+        "src/winmixpro/data/components.js",
+        "src/winmixpro/data/feedback.js",
+        "src/winmixpro/data/health.js",
+        "src/winmixpro/data/integrations.js",
+        "src/winmixpro/data/jobs.js",
+        "src/winmixpro/data/models.js",
+        "src/winmixpro/data/phase9.js",
+        "src/winmixpro/data/stats.js",
+        "src/winmixpro/data/themes.js",
+        "src/winmixpro/data/users.js",
+        "src/winmixpro/providers/FeatureFlagsProvider.jsx",
+        "src/winmixpro/providers/ThemeProvider.jsx"
+      ]
+    },
+    {
+      "type": "exact_content",
+      "files": [
+        "src/winmixpro/hooks/index.js",
+        "src/winmixpro/hooks/index.ts"
+      ]
+    },
+    {
+      "type": "exact_content",
+      "files": [
+        "src/winmixpro/lib/index.js",
+        "src/winmixpro/lib/index.ts"
+      ]
+    }
+  ],
+  "scssDuplicates": [
+    {
+      "ruleHash": "50007cdbcc7b2c8a9719b8b8a9fde0de",
+      "occurrences": [
+        {
+          "file": "src/styles/_elements.scss",
+          "selector": "&:hover, &:focus",
+          "line": 70
+        },
+        {
+          "file": "src/ui/SizeSelector/styles.module.scss",
+          "selector": "&:hover, &:focus",
+          "line": 27
+        }
+      ]
+    },
+    {
+      "ruleHash": "28f7c840b96995e6ee64de06dc8cb3da",
+      "occurrences": [
+        {
+          "file": "src/styles/_elements.scss",
+          "selector": "&:hover, &:focus",
+          "line": 314
+        },
+        {
+          "file": "src/widgets/AccountSettings/styles.module.scss",
+          "selector": "&:hover, &:focus",
+          "line": 28
+        }
+      ]
+    },
+    {
+      "ruleHash": "8b7018930ba27ace4dff60cdf0822c5f",
+      "occurrences": [
+        {
+          "file": "src/styles/_elements.scss",
+          "selector": "img",
+          "line": 429
+        },
+        {
+          "file": "src/widgets/PlayerFullInfo/styles.module.scss",
+          "selector": "img",
+          "line": 27
+        },
+        {
+          "file": "src/widgets/PlayerProfileCard/styles.module.scss",
+          "selector": "img",
+          "line": 9
+        }
+      ]
+    },
+    {
+      "ruleHash": "5bd318fddbc380bae64e1a9828344b2a",
+      "occurrences": [
+        {
+          "file": "src/styles/_elements.scss",
+          "selector": "&.light",
+          "line": 584
+        },
+        {
+          "file": "src/styles/_typo.scss",
+          "selector": "&.light",
+          "line": 9
+        }
+      ]
+    },
+    {
+      "ruleHash": "1aafc3c03780312c4a086dd0cedcf682",
+      "occurrences": [
+        {
+          "file": "src/styles/_elements.scss",
+          "selector": "&.dark",
+          "line": 588
+        },
+        {
+          "file": "src/styles/_typo.scss",
+          "selector": "&.dark",
+          "line": 13
+        }
+      ]
+    },
+    {
+      "ruleHash": "bd251965f0a786167ab516f5570d428a",
+      "occurrences": [
+        {
+          "file": "src/styles/_global.scss",
+          "selector": "img",
+          "line": 81
+        },
+        {
+          "file": "src/components/SimpleProduct/styles.module.scss",
+          "selector": "img",
+          "line": 14
+        },
+        {
+          "file": "src/widgets/Ticket/styles.module.scss",
+          "selector": "img",
+          "line": 11
+        },
+        {
+          "file": "src/widgets/User/styles.module.scss",
+          "selector": "img",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "ruleHash": "b175a9c752e77515307909c7ddb6f1d3",
+      "occurrences": [
+        {
+          "file": "src/components/Error404/styles.module.scss",
+          "selector": "&.visible",
+          "line": 23
+        },
+        {
+          "file": "src/widgets/Attendance/styles.module.scss",
+          "selector": "&.visible",
+          "line": 49
+        },
+        {
+          "file": "src/widgets/ClubFansMap/styles.module.scss",
+          "selector": "&.visible",
+          "line": 17
+        },
+        {
+          "file": "src/widgets/LocalFans/styles.module.scss",
+          "selector": "&.visible",
+          "line": 35
+        }
+      ]
+    },
+    {
+      "ruleHash": "d63f95fdf1175eae1cea755b91cb1ed6",
+      "occurrences": [
+        {
+          "file": "src/components/Lineups/styles.module.scss",
+          "selector": "&.compact",
+          "line": 59
+        },
+        {
+          "file": "src/components/LeagueHeader/styles.module.scss",
+          "selector": "&.compact",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "ruleHash": "8a7bd9a9b2dab459e090c36b56a0a015",
+      "occurrences": [
+        {
+          "file": "src/components/MatchMonthCard/styles.module.scss",
+          "selector": "&.dark",
+          "line": 12
+        },
+        {
+          "file": "src/widgets/MonthMatches/styles.module.scss",
+          "selector": "&.dark",
+          "line": 13
+        }
+      ]
+    },
+    {
+      "ruleHash": "3c0393e777d4f37430f1515b04f96f0c",
+      "occurrences": [
+        {
+          "file": "src/components/ProductInfoItem/styles.module.scss",
+          "selector": "&:not(:last-child)",
+          "line": 8
+        },
+        {
+          "file": "src/layout/BottomNav/styles.module.scss",
+          "selector": "&:not(:last-child)",
+          "line": 33
+        },
+        {
+          "file": "src/widgets/ProductAdditionalInfo/styles.module.scss",
+          "selector": "&:not(:last-child)",
+          "line": 7
+        }
+      ]
+    },
+    {
+      "ruleHash": "6d9643fb757813ea4a61128e9110da66",
+      "occurrences": [
+        {
+          "file": "src/components/SizeGuide/styles.module.scss",
+          "selector": "&:first-child",
+          "line": 17
+        },
+        {
+          "file": "src/widgets/ShoppingCart/styles.module.scss",
+          "selector": "&:first-child",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "ruleHash": "23d4de3ec2d770973a5fcb66319c547f",
+      "occurrences": [
+        {
+          "file": "src/components/SizeGuide/styles.module.scss",
+          "selector": "&:last-child",
+          "line": 21
+        },
+        {
+          "file": "src/widgets/ShoppingCart/styles.module.scss",
+          "selector": "&:last-child",
+          "line": 9
+        }
+      ]
+    },
+    {
+      "ruleHash": "6c1894879ca2b5f6a037ddf91492ff34",
+      "occurrences": [
+        {
+          "file": "src/ui/SizeSelector/styles.module.scss",
+          "selector": "input",
+          "line": 3
+        },
+        {
+          "file": "src/ui/Radio/styles.module.scss",
+          "selector": "input",
+          "line": 11
+        },
+        {
+          "file": "src/ui/Switch/style.module.scss",
+          "selector": "input",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "ruleHash": "47291e881216ba9ee962779018d79b6a",
+      "occurrences": [
+        {
+          "file": "src/widgets/Attendance/styles.module.scss",
+          "selector": ".media",
+          "line": 8
+        },
+        {
+          "file": "src/widgets/ClubFansMap/styles.module.scss",
+          "selector": ".media",
+          "line": 1
+        },
+        {
+          "file": "src/widgets/LocalFans/styles.module.scss",
+          "selector": ".media",
+          "line": 1
+        }
+      ]
+    },
+    {
+      "ruleHash": "f76e7f2ab84b59896ccd9125505c70f3",
+      "occurrences": [
+        {
+          "file": "src/widgets/BallPossessionAreaChart/styles.module.scss",
+          "selector": ".header",
+          "line": 1
+        },
+        {
+          "file": "src/widgets/ChampionshipPositionChart/styles.module.scss",
+          "selector": ".header",
+          "line": 1
+        }
+      ]
+    },
+    {
+      "ruleHash": "a541207e5c2bcc4409551c513db7fdc5",
+      "occurrences": [
+        {
+          "file": "src/widgets/ClubFansMap/styles.module.scss",
+          "selector": "&_img",
+          "line": 9
+        },
+        {
+          "file": "src/widgets/LocalFans/styles.module.scss",
+          "selector": "&_img",
+          "line": 27
+        }
+      ]
+    },
+    {
+      "ruleHash": "9d713309624fa2445fd411d4188cc5be",
+      "occurrences": [
+        {
+          "file": "src/widgets/MatchLiveReport/styles.module.scss",
+          "selector": ".main",
+          "line": 1
+        },
+        {
+          "file": "src/widgets/StoreSupport/styles.module.scss",
+          "selector": ".main",
+          "line": 1
+        }
+      ]
+    },
+    {
+      "ruleHash": "29713135c8554ef5bb8c6a6af44d1c4a",
+      "occurrences": [
+        {
+          "file": "src/widgets/PaymentMethod/styles.module.scss",
+          "selector": "&.dark",
+          "line": 26
+        },
+        {
+          "file": "src/components/Todos/Todo/styles.module.scss",
+          "selector": "&.dark",
+          "line": 106
+        }
+      ]
+    },
+    {
+      "ruleHash": "8aae7412f6de8319937b570b7869f815",
+      "occurrences": [
+        {
+          "file": "src/widgets/PlayerProfileCard/styles.module.scss",
+          "selector": ".container",
+          "line": 40
+        },
+        {
+          "file": "src/widgets/ProductDisplay/styles.module.scss",
+          "selector": ".container",
+          "line": 1
+        }
+      ]
+    },
+    {
+      "ruleHash": "ff3b0bd80bd8bdedf6e2f4962ec4aced",
+      "occurrences": [
+        {
+          "file": "src/widgets/TeamResults/styles.module.scss",
+          "selector": "// tablet portrait\n    @media screen and (min-width: 768px)",
+          "line": 24
+        },
+        {
+          "file": "src/widgets/TeamFullInfo/styles.module.scss",
+          "selector": "// tablet portrait\n    @media screen and (min-width: 768px)",
+          "line": 7
+        }
+      ]
+    }
+  ]
+}
