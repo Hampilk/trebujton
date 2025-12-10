@@ -6,6 +6,7 @@ import AdminDashboard from './AdminDashboard';
 import AdminFeatures from './AdminFeatures';
 import AdminDesign from './AdminDesign';
 import AdminComponents from './AdminComponents';
+import PageBuilder from './PageBuilder';
 
 // components
 import Spring from '@components/Spring';
@@ -49,6 +50,13 @@ const AdminLayout = ({ children }) => {
                                     Komponensek
                                 </button>
                             </Link>
+                            <Link to="/winmixpro/admin/page-builder" className="block">
+                                <button 
+                                    className={`btn w-full justify-start ${currentPath === '/winmixpro/admin/page-builder' ? 'btn--primary' : 'btn--outline'}`}
+                                >
+                                    Oldal Készítő
+                                </button>
+                            </Link>
                         </nav>
                     </div>
                 </Spring>
@@ -82,6 +90,11 @@ const WinmixProAdmin = () => {
                 <Route path="/components" element={
                     <AdminLayout>
                         <AdminComponents />
+                    </AdminLayout>
+                } />
+                <Route path="/page-builder" element={
+                    <AdminLayout>
+                        <PageBuilder />
                     </AdminLayout>
                 } />
             </Routes>

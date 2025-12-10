@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from "react";
-import { widgetRegistry, getCategories } from "../index";
+import { useDispatch, useSelector } from "react-redux";
+import { widgetRegistry, getCategories, getWidgetsByCategory } from "../index";
+import { addWidgetInstance, selectCurrentPageId } from "../../features/cms/pageLayoutsSlice";
 import "./builder.css";
 
 const WidgetChip = ({ widget, onDragStart, onClick }) => {
@@ -29,6 +31,8 @@ const WidgetChip = ({ widget, onDragStart, onClick }) => {
 };
 
 export const WidgetPicker = ({ onWidgetSelect }) => {
+  const dispatch = useDispatch();
+  const currentPageId = useSelector(selectCurrentPageId);
   const [searchTerm, setSearchTerm] = useState("");
   const categories = getCategories();
 
@@ -64,6 +68,20 @@ export const WidgetPicker = ({ onWidgetSelect }) => {
   }, [widgetsByCategory, searchTerm]);
 
   const handleWidgetSelect = (widget) => {
+    // Create a new instance and add it to the layout
+    const newInstance = {
+      id: `${widget.id}-${Date.now()}`,
+      type: widget.id,
+      props: widget.meta?.defaultProps || {},
+      layout: {
+        x: 0,
+        y: 0, // Will be auto-positioned by the grid
+        w: widget.meta?.defaultSize?.w || 3,
+        h: widget.meta?.defaultSize?.h || 2,
+      },
+    };
+
+    dispatch(addWidgetInstance({ pageId: currentPageId, instance: newInstance }));
     onWidgetSelect?.(widget);
   };
 

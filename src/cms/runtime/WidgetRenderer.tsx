@@ -7,6 +7,7 @@ interface WidgetRendererProps {
   props?: Record<string, any>;
   variant?: string;
   instanceId?: string;
+  isBuilderPreview?: boolean;
 }
 
 interface ErrorFallbackProps {
@@ -95,6 +96,7 @@ export const WidgetRenderer: React.FC<WidgetRendererProps> = ({
   props = {},
   variant = "default",
   instanceId,
+  isBuilderPreview = false,
 }) => {
   const widgetDef = getWidgetById(type);
 
@@ -118,6 +120,7 @@ export const WidgetRenderer: React.FC<WidgetRendererProps> = ({
     ...props,
     "data-cms-variant": variant,
     "data-cms-instance-id": instanceId,
+    "data-cms-builder-preview": isBuilderPreview,
   };
 
   return (
