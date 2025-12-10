@@ -71,3 +71,52 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+
+---
+
+## CMS Feature - Database Schema
+
+### Migrations
+
+#### 1. CMS Pages Schema (`20250201000000_cms_pages.sql`)
+Creates the core CMS tables:
+- **`pages`**: Stores page metadata (slug, title, publication status)
+- **`page_layouts`**: Stores layout JSON with widget configurations
+
+#### 2. Theme Overrides Schema (`20251210072248_page_theme_overrides.sql`)
+Extends pages with theme customization:
+- **`theme_overrides`** column: Per-page theme configuration (mode, variant, colors)
+- **`page_theme_override_audit`** table: Change tracking with user attribution
+- **Validation**: CHECK constraint ensures valid theme override structure
+- **Triggers**: Auto-updates timestamps and logs theme changes
+
+### Service Layer
+
+**Location:** `src/services/cms/pageLayouts.js`
+
+Unified service handling both layout and theme data:
+
+```javascript
+// Load page with layout and theme overrides
+const pageData = await loadPageLayout(pageId);
+// Returns: { layout_json, theme_overrides, pages: {...} }
+
+// Save layout and/or theme overrides
+await savePageLayout(pageId, layoutData, themeOverrides);
+
+// Update theme overrides independently
+await updatePageThemeOverrides(pageId, { themeMode: 'dark' });
+
+// Merge partial theme changes
+await mergePageThemeOverrides(pageId, { themeVariant: 'pro' });
+
+// View change history
+const auditLog = await getPageThemeOverrideAuditLog(pageId);
+```
+
+### Documentation
+
+For complete implementation details, see:
+- **[CMS_PHASE3_IMPLEMENTATION.md](./CMS_PHASE3_IMPLEMENTATION.md)** - Full Phase 3 documentation
+- **Migration Files:** `supabase/migrations/`
+- **Service Tests:** `src/test/services/cms/pageLayouts.test.js`
