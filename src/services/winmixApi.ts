@@ -7,23 +7,20 @@
  */
 
 import { supabase } from '@/integrations/supabase/client'
-import type { Database } from '@/integrations/supabase/types'
+// Use permissive local types here to avoid depending on generated supabase types
+type League = any
+type Team = any
+type Match = any
+type Prediction = any
+type UserProfile = any
 
-// Type definitions from Supabase schema
-type League = Database['public']['Tables']['leagues']['Row']
-type Team = Database['public']['Tables']['teams']['Row']
-type Match = Database['public']['Tables']['matches']['Row']
-type Prediction = Database['public']['Tables']['predictions']['Row']
-type UserProfile = Database['public']['Tables']['user_profiles']['Row']
-
-// Optional tables that might not exist in all schemas
-type Player = Database['public']['Tables']['players'] extends { Row: infer R } ? R : { id: string; name: string }
-type Product = Database['public']['Tables']['products'] extends { Row: infer R } ? R : { id: string; name: string; price: number }
-type ChatMessage = Database['public']['Tables']['chat_messages'] extends { Row: infer R } ? R : { id: string; message: string; created_at: string }
-type Schedule = Database['public']['Tables']['schedule'] extends { Row: infer R } ? R : { id: string; title: string; date: string; type: string }
-type ModelPerformance = Database['public']['Tables']['model_performance'] extends { Row: infer R } ? R : { id: string; created_at: string }
-type DetectedPattern = Database['public']['Tables']['detected_patterns'] extends { Row: infer R } ? R : { id: string; created_at: string }
-type TeamPattern = Database['public']['Tables']['team_patterns'] extends { Row: infer R } ? R : { id: string; created_at: string }
+type Player = any
+type Product = any
+type ChatMessage = any
+type Schedule = any
+type ModelPerformance = any
+type DetectedPattern = any
+type TeamPattern = any
 
 // Extended types with relations
 interface MatchWithTeams extends Match {
@@ -222,8 +219,8 @@ export const winmixApi = {
   // ===== LEAGUE STANDINGS =====
   async fetchLeagueStandings(leagueId: string): Promise<LeagueStanding[]> {
     try {
-      const { data, error } = await supabase
-        .from('matches')
+      const _res = await supabase
+        .from('matches' as any)
         .select(`
           *,
           home_team:teams!matches_home_team_id_fkey(*),
@@ -234,6 +231,8 @@ export const winmixApi = {
         .eq('status', 'finished')
         .order('match_date', { ascending: false })
 
+      const data = _res.data as any
+      const error = _res.error
       if (error) throw error
 
       // Calculate standings
@@ -352,8 +351,8 @@ export const winmixApi = {
   // ===== LIVE MATCHES =====
   async fetchLiveMatches(): Promise<MatchWithTeams[]> {
     try {
-      const { data, error } = await supabase
-        .from('matches')
+      const _resLive = await supabase
+        .from('matches' as any)
         .select(`
           *,
           home_team:teams!matches_home_team_id_fkey(*),
@@ -363,6 +362,8 @@ export const winmixApi = {
         .eq('status', 'live')
         .order('match_date', { ascending: true })
 
+      const data = _resLive.data as any
+      const error = _resLive.error
       if (error) throw error
       return data || []
     } catch (error) {
@@ -374,8 +375,8 @@ export const winmixApi = {
   // ===== FINISHED MATCHES =====
   async fetchFinishedMatches(limit = 50): Promise<MatchWithTeams[]> {
     try {
-      const { data, error } = await supabase
-        .from('matches')
+      const _resFinished = await supabase
+        .from('matches' as any)
         .select(`
           *,
           home_team:teams!matches_home_team_id_fkey(*),
@@ -386,6 +387,8 @@ export const winmixApi = {
         .order('match_date', { ascending: false })
         .limit(limit)
 
+      const data = _resFinished.data as any
+      const error = _resFinished.error
       if (error) throw error
       return data || []
     } catch (error) {
@@ -397,12 +400,14 @@ export const winmixApi = {
   // ===== PLAYER PROFILE =====
   async fetchPlayerProfile(playerId: string): Promise<PlayerWithStats | null> {
     try {
-      const { data, error } = await supabase
-        .from('players')
+      const _resPlayer = await supabase
+        .from('players' as any)
         .select('*')
         .eq('id', playerId)
         .single()
 
+      const data = _resPlayer.data as any
+      const error = _resPlayer.error
       if (error) {
         if (error.code === 'PGRST116') return null
         throw error
@@ -432,7 +437,7 @@ export const winmixApi = {
   async fetchStoreInventory(category?: string): Promise<ProductInventory[]> {
     try {
       let query = supabase
-        .from('products')
+        .from('products' as any)
         .select(`
           *,
           product_categories:product_categories(*)
@@ -442,7 +447,9 @@ export const winmixApi = {
         query = query.eq('product_categories.name', category)
       }
 
-      const { data, error } = await query.order('name')
+      const _resProducts = await query.order('name')
+      const data = _resProducts.data as any
+      const error = _resProducts.error
 
       if (error) throw error
 
@@ -468,7 +475,7 @@ export const winmixApi = {
   async fetchChatMessages(conversationId?: string): Promise<ChatMessageWithUser[]> {
     try {
       let query = supabase
-        .from('chat_messages')
+        .from('chat_messages' as any)
         .select(`
           *,
           user:user_profiles(*)
@@ -478,9 +485,11 @@ export const winmixApi = {
         query = query.eq('conversation_id', conversationId)
       }
 
-      const { data, error } = await query
+      const _resChat = await query
         .order('created_at', { ascending: true })
 
+      const data = _resChat.data as any
+      const error = _resChat.error
       if (error) throw error
       return data || []
     } catch (error) {
@@ -493,16 +502,19 @@ export const winmixApi = {
   async fetchSchedule(type?: 'training' | 'match' | 'meeting' | 'event'): Promise<ScheduleItem[]> {
     try {
       let query = supabase
-        .from('schedule')
+        .from('schedule' as any)
         .select('*')
 
       if (type) {
         query = query.eq('type', type)
       }
 
-      const { data, error } = await query
+      const _resSchedule = await query
         .gte('date', new Date().toISOString())
         .order('date', { ascending: true })
+
+      const data = _resSchedule.data as any
+      const error = _resSchedule.error
 
       if (error) throw error
 
@@ -525,8 +537,8 @@ export const winmixApi = {
   // ===== PREDICTIONS =====
   async fetchPredictions(limit = 20): Promise<PredictionData[]> {
     try {
-      const { data, error } = await supabase
-        .from('predictions')
+      const _resPred = await supabase
+        .from('predictions' as any)
         .select(`
           *,
           match:matches(
@@ -539,6 +551,8 @@ export const winmixApi = {
         .order('created_at', { ascending: false })
         .limit(limit)
 
+      const data = _resPred.data as any
+      const error = _resPred.error
       if (error) throw error
 
       return (data || []).map(prediction => ({
@@ -593,11 +607,13 @@ export const winmixApi = {
     assignedTo?: string
   }>> {
     try {
-      const { data, error } = await supabase
-        .from('todos')
+      const _resTodos = await supabase
+        .from('todos' as any)
         .select('*')
         .order('created_at', { ascending: false })
 
+      const data = _resTodos.data as any
+      const error = _resTodos.error
       if (error) throw error
 
       return (data || []).map(todo => ({
@@ -617,12 +633,15 @@ export const winmixApi = {
   // ===== SYSTEM STATUS =====
   async fetchSystemStatus(): Promise<SystemStatus> {
     try {
-      const { data, error } = await supabase
-        .from('system_health_metrics')
+      const _resStatus = await supabase
+        .from('system_health_metrics' as any)
         .select('*')
         .order('timestamp', { ascending: false })
         .limit(1)
         .single()
+
+      const data = _resStatus.data as any
+      const error = _resStatus.error
 
       if (error) {
         // Return default status if no data
@@ -670,16 +689,18 @@ export const winmixApi = {
     nextMatches: MatchWithTeams[]
   }> {
     try {
-      const { data: team, error: teamError } = await supabase
-        .from('teams')
+      const _resTeam = await supabase
+        .from('teams' as any)
         .select('*')
         .eq('id', teamId)
         .single()
 
+      const team = _resTeam.data as any
+      const teamError = _resTeam.error
       if (teamError) throw teamError
 
-      const { data: matches, error: matchesError } = await supabase
-        .from('matches')
+      const _resMatches = await supabase
+        .from('matches' as any)
         .select(`
           *,
           home_team:teams!matches_home_team_id_fkey(*),
@@ -691,10 +712,12 @@ export const winmixApi = {
         .order('match_date', { ascending: false })
         .limit(10)
 
+      const matches = _resMatches.data as any
+      const matchesError = _resMatches.error
       if (matchesError) throw matchesError
 
-      const { data: upcomingMatches, error: upcomingError } = await supabase
-        .from('matches')
+      const _resUpcoming = await supabase
+        .from('matches' as any)
         .select(`
           *,
           home_team:teams!matches_home_team_id_fkey(*),
@@ -706,6 +729,8 @@ export const winmixApi = {
         .order('match_date', { ascending: true })
         .limit(5)
 
+      const upcomingMatches = _resUpcoming.data as any
+      const upcomingError = _resUpcoming.error
       if (upcomingError) throw upcomingError
 
       // Calculate stats

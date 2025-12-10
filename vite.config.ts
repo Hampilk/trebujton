@@ -135,8 +135,11 @@ export default defineConfig(({ mode }): UserConfig => {
       chunkSizeWarningLimit: 600,
     },
     
+    // Relax dependency pre-bundling to avoid missing-chunk errors from optimizeDeps
     optimizeDeps: {
-        force: true,
+        // avoid forcing Vite to aggressively pre-bundle everything (can cause cache mismatches)
+        force: false,
+        // Only include packages we are sure are present; removed entries that previously failed to resolve
         include: [
           'styled-components',
           '@mui/material',
@@ -144,9 +147,6 @@ export default defineConfig(({ mode }): UserConfig => {
           '@emotion/react',
           '@emotion/styled',
           '@emotion/cache',
-          '@emotion/utils',
-          'react-is',
-          'hoist-non-react-statics',
           'rtl-detect'
         ],
     },

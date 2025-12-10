@@ -1,9 +1,29 @@
 import { supabase } from '@/integrations/supabase/client'
-import type { Database } from '@/integrations/supabase/types'
 
-type Match = Database['public']['Tables']['matches']['Row']
-type Team = Database['public']['Tables']['teams']['Row']
-type League = Database['public']['Tables']['leagues']['Row']
+
+// Local types for matches/teams/leagues to avoid depending on generated DB types
+export interface Match {
+  id: string
+  home_team_id: string
+  away_team_id: string
+  home_score?: number | null
+  away_score?: number | null
+  match_date?: string | null
+  status?: string | null
+  league_id?: string | null
+}
+
+export interface Team {
+  id: string
+  name: string
+  logo_url?: string | null
+  short_name?: string | null
+}
+
+export interface League {
+  id: string
+  name: string
+}
 
 interface MatchWithTeams extends Match {
   home_team: Team
@@ -22,7 +42,7 @@ interface CreateMatchInput {
 export const matchService = {
   async getUpcomingMatches(): Promise<MatchWithTeams[]> {
     const { data, error } = await supabase
-      .from('matches')
+      .from('matches' as any)
       .select(`
         *,
         home_team:teams!matches_home_team_id_fkey(*),
@@ -32,14 +52,14 @@ export const matchService = {
       .gte('match_date', new Date().toISOString())
       .eq('status', 'scheduled')
       .order('match_date', { ascending: true })
-    
+
     if (error) throw error
-    return data || []
+    return (data as unknown as MatchWithTeams[]) || []
   },
 
   async getLiveMatches(): Promise<MatchWithTeams[]> {
     const { data, error } = await supabase
-      .from('matches')
+      .from('matches' as any)
       .select(`
         *,
         home_team:teams!matches_home_team_id_fkey(*),
@@ -48,14 +68,14 @@ export const matchService = {
       `)
       .eq('status', 'live')
       .order('match_date', { ascending: true })
-    
+
     if (error) throw error
-    return data || []
+    return (data as unknown as MatchWithTeams[]) || []
   },
 
   async getFinishedMatches(limit = 50): Promise<MatchWithTeams[]> {
     const { data, error } = await supabase
-      .from('matches')
+      .from('matches' as any)
       .select(`
         *,
         home_team:teams!matches_home_team_id_fkey(*),
@@ -65,14 +85,14 @@ export const matchService = {
       .eq('status', 'finished')
       .order('match_date', { ascending: false })
       .limit(limit)
-    
+
     if (error) throw error
-    return data || []
+    return (data as unknown as MatchWithTeams[]) || []
   },
 
   async getMatchById(id: string): Promise<MatchWithTeams | null> {
     const { data, error } = await supabase
-      .from('matches')
+      .from('matches' as any)
       .select(`
         *,
         home_team:teams!matches_home_team_id_fkey(*),
@@ -81,23 +101,24 @@ export const matchService = {
       `)
       .eq('id', id)
       .single()
-    
+
     if (error) {
       if (error.code === 'PGRST116') return null // No rows returned
       throw error
     }
-    return data
+    return data as unknown as MatchWithTeams
   },
 
   async createMatch(matchData: CreateMatchInput): Promise<Match> {
-    const { data, error } = await supabase
-      .from('matches')
-      .insert(matchData)
+    const _res = await (supabase.from('matches' as any) as any)
+      .insert(matchData as any)
       .select()
       .single()
-    
+
+    const data = _res.data as any
+    const error = _res.error
     if (error) throw error
-    return data
+    return data as unknown as Match
   },
 
   async updateMatchScore(
@@ -105,43 +126,45 @@ export const matchService = {
     homeScore: number, 
     awayScore: number
   ): Promise<Match> {
-    const { data, error } = await supabase
-      .from('matches')
+    const _res = await (supabase.from('matches' as any) as any)
       .update({
         home_score: homeScore,
         away_score: awayScore,
         status: 'finished',
         updated_at: new Date().toISOString()
-      })
+      } as any)
       .eq('id', matchId)
       .select()
       .single()
-    
+
+    const data = _res.data as any
+    const error = _res.error
     if (error) throw error
-    return data
+    return data as unknown as Match
   },
 
   async updateMatchStatus(
     matchId: string, 
     status: 'scheduled' | 'live' | 'finished' | 'cancelled'
   ): Promise<Match> {
-    const { data, error } = await supabase
-      .from('matches')
+    const _res = await (supabase.from('matches' as any) as any)
       .update({
         status,
         updated_at: new Date().toISOString()
-      })
+      } as any)
       .eq('id', matchId)
       .select()
       .single()
-    
+
+    const data = _res.data as any
+    const error = _res.error
     if (error) throw error
-    return data
+    return data as unknown as Match
   },
 
   async getMatchesByLeague(leagueId: string): Promise<MatchWithTeams[]> {
     const { data, error } = await supabase
-      .from('matches')
+      .from('matches' as any)
       .select(`
         *,
         home_team:teams!matches_home_team_id_fkey(*),
@@ -150,14 +173,14 @@ export const matchService = {
       `)
       .eq('league_id', leagueId)
       .order('match_date', { ascending: false })
-    
+
     if (error) throw error
-    return data || []
+    return (data as unknown as MatchWithTeams[]) || []
   },
 
   async getMatchesByTeam(teamId: string): Promise<MatchWithTeams[]> {
     const { data, error } = await supabase
-      .from('matches')
+      .from('matches' as any)
       .select(`
         *,
         home_team:teams!matches_home_team_id_fkey(*),
@@ -166,14 +189,14 @@ export const matchService = {
       `)
       .or(`home_team_id.eq.${teamId},away_team_id.eq.${teamId}`)
       .order('match_date', { ascending: false })
-    
+
     if (error) throw error
-    return data || []
+    return (data as unknown as MatchWithTeams[]) || []
   },
 
   async getKnockoutMatches(stage?: string): Promise<MatchWithTeams[]> {
-    const query = supabase
-      .from('matches')
+    const query: any = supabase
+      .from('matches' as any)
       .select(`
         *,
         home_team:teams!matches_home_team_id_fkey(*),
@@ -190,7 +213,7 @@ export const matchService = {
     const { data, error } = await query
     
     if (error) throw error
-    return data || []
+    return (data as unknown as MatchWithTeams[]) || []
   },
 
   async getMatchStatistics(matchId: string): Promise<any[]> {

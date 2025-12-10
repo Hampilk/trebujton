@@ -22,35 +22,35 @@ const AdminLayout = ({ children }) => {
                     <div className="space-y-4">
                         <h2 className="text-xl font-bold text-white">WinMixPro Admin</h2>
                         <nav className="space-y-2">
-                            <Link to="/winmixpro/admin" className="block">
+                            <Link to="" className="block">
                                 <button 
                                     className={`btn w-full justify-start ${currentPath === '/winmixpro/admin' ? 'btn--primary' : 'btn--outline'}`}
                                 >
                                     Irányítópult
                                 </button>
                             </Link>
-                            <Link to="/winmixpro/admin/features" className="block">
+                            <Link to="features" className="block">
                                 <button 
                                     className={`btn w-full justify-start ${currentPath === '/winmixpro/admin/features' ? 'btn--primary' : 'btn--outline'}`}
                                 >
                                     Funkciók
                                 </button>
                             </Link>
-                            <Link to="/winmixpro/admin/design" className="block">
+                            <Link to="design" className="block">
                                 <button 
                                     className={`btn w-full justify-start ${currentPath === '/winmixpro/admin/design' ? 'btn--primary' : 'btn--outline'}`}
                                 >
                                     Terv
                                 </button>
                             </Link>
-                            <Link to="/winmixpro/admin/components" className="block">
+                            <Link to="components" className="block">
                                 <button 
                                     className={`btn w-full justify-start ${currentPath === '/winmixpro/admin/components' ? 'btn--primary' : 'btn--outline'}`}
                                 >
                                     Komponensek
                                 </button>
                             </Link>
-                            <Link to="/winmixpro/admin/page-builder" className="block">
+                            <Link to="page-builder" className="block">
                                 <button 
                                     className={`btn w-full justify-start ${currentPath === '/winmixpro/admin/page-builder' ? 'btn--primary' : 'btn--outline'}`}
                                 >
@@ -72,27 +72,27 @@ const WinmixProAdmin = () => {
     return (
         <RoleGate allowedRoles={['admin', 'analyst']}>
             <Routes>
-                <Route path="/" element={
+                <Route index element={
                     <AdminLayout>
                         <AdminDashboard />
                     </AdminLayout>
                 } />
-                <Route path="/features" element={
+                <Route path="features" element={
                     <AdminLayout>
                         <AdminFeatures />
                     </AdminLayout>
                 } />
-                <Route path="/design" element={
+                <Route path="design" element={
                     <AdminLayout>
                         <AdminDesign />
                     </AdminLayout>
                 } />
-                <Route path="/components" element={
+                <Route path="components" element={
                     <AdminLayout>
                         <AdminComponents />
                     </AdminLayout>
                 } />
-                <Route path="/page-builder" element={
+                <Route path="page-builder" element={
                     <AdminLayout>
                         <PageBuilder />
                     </AdminLayout>

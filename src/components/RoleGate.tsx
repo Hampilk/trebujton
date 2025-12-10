@@ -1,25 +1,29 @@
-import React from 'react'
-import { Navigate } from 'react-router-dom'
-import { useAuth } from '@contexts/AuthContext'
-import LoadingScreen from '@components/LoadingScreen'
+import React from "react";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";   // <-- FIXED ALIAS
+import LoadingScreen from "@/components/LoadingScreen"; // <-- FIXED ALIAS
 
 interface RoleGateProps {
-  children: React.ReactNode
-  allowedRoles?: ('admin' | 'analyst' | 'user')[]
+  children: React.ReactNode;
+  allowedRoles?: ("admin" | "analyst" | "user" | "viewer")[];
 }
 
-export function RoleGate({ children, allowedRoles = ['admin', 'analyst', 'user'] }: RoleGateProps) {
-  const { profile, loading } = useAuth()
+export function RoleGate({
+  children,
+  allowedRoles = ["admin", "analyst", "user", "viewer"],
+}: RoleGateProps) {
+  const { role, loading } = useAuth();
 
   if (loading) {
-    return <LoadingScreen />
+    return <LoadingScreen />;
   }
 
-  if (!profile || !allowedRoles.includes(profile.role)) {
-    return <Navigate to="/login" replace />
+  // No role, or not allowed
+  if (!role || !allowedRoles.includes(role)) {
+    return <Navigate to="/login" replace />;
   }
 
-  return <>{children}</>
+  return <>{children}</>;
 }
 
-export default RoleGate
+export default RoleGate;

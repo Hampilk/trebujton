@@ -132,20 +132,20 @@ const MemoizedCartItem = React.memo(({
 
 MemoizedCartItem.displayName = 'MemoizedCartItem';
 
-// Memoized formatted cart items with pre-computed values
-const formattedCartItems = useMemo(() => 
-    CART_ITEMS.map(item => ({
-        ...item,
-        formattedPrice: `${item.price.toFixed(2)}`
-    })), 
-    []
-);
-
 const ShoppingCart = ({isPopup}) => {
     const {cartOpen, setCartOpen} = useShopProvider();
     const [headerRef, {height: headerHeight}] = useMeasure();
     const [footerRef, {height: footerHeight}] = useMeasure();
     const [nameRef, {width}] = useMeasure();
+
+    // Memoized formatted cart items with pre-computed values
+    const formattedCartItems = useMemo(() => 
+        CART_ITEMS.map(item => ({
+            ...item,
+            formattedPrice: `${item.price.toFixed(2)}`
+        })), 
+        []
+    );
 
     // Memoized wrapper components and props
     const { Wrapper, wrapperProps } = useMemo(() => {

@@ -50,16 +50,30 @@ const DEFAULT_LAYOUT = {
 
 /**
  * Helper function to generate unique widget ID
+ * Uses secure `crypto.randomUUID()` when available, falls back to timestamp+random.
  */
 const generateWidgetId = (type) => {
-  return `${type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const id = (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return `${type}-${id}`;
 };
 
-/**
- * Helper function to deep clone layout data
+/**n+ * Helper function to deep clone layout data
+ * Prefer `structuredClone` when available, otherwise fall back to JSON clone.
  */
 const cloneLayout = (layout) => {
-  return JSON.parse(JSON.stringify(layout));
+  if (typeof structuredClone === 'function') {
+    return structuredClone(layout);
+  }
+  try {
+    return JSON.parse(JSON.stringify(layout));
+  } catch (e) {
+    // Last-resort shallow fallback to avoid throwing in production
+    if (Array.isArray(layout)) return [...layout];
+    if (layout && typeof layout === 'object') return { ...layout };
+    return layout;
+  }
 };
 
 /**

@@ -1,225 +1,219 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
-import { User, Session } from '@supabase/supabase-js'
-import { supabase } from '@/integrations/supabase/client'
-import type { Database } from '@/integrations/supabase/types'
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import type { User, Session } from "@supabase/supabase-js";
+import type Database from "@/integrations/supabase/types";
 
-type UserProfile = Database['public']['Tables']['user_profiles']['Row']
+type UserProfile = Database["public"]["Tables"]["user_profiles"]["Row"];
 
-export type UserRole = 'user' | 'analyst' | 'admin'
+export type UserRole = "user" | "analyst" | "admin" | "viewer";
 
 interface AuthContextType {
-  user: User | null
-  profile: UserProfile | null
-  session: Session | null
-  loading: boolean
-  error: string | null
-  role: UserRole | null
-  signUp: (email: string, password: string, fullName?: string) => Promise<any>
-  signIn: (email: string, password: string) => Promise<any>
-  signOut: () => Promise<void>
-  resetPassword: (email: string) => Promise<any>
+  user: User | null;
+  session: Session | null;
+  profile: UserProfile | null;
+  role: UserRole | null;
+  loading: boolean;
+  error: string | null;
+
+  signUp: (email: string, password: string, fullName?: string) => Promise<any>;
+  signIn: (email: string, password: string) => Promise<any>;
+  signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<any>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function useAuth() {
-  const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider')
-  }
-  return context
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used inside <AuthProvider>");
+  return ctx;
 }
 
-interface AuthProviderProps {
-  children: React.ReactNode
-}
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [role, setRole] = useState<UserRole | null>(null);
 
-export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<User | null>(null)
-  const [profile, setProfile] = useState<UserProfile | null>(null)
-  const [session, setSession] = useState<Session | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [role, setRole] = useState<UserRole | null>(null)
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Fetch user role from database
-  const fetchUserRole = async (userId: string) => {
-    try {
-      const { data: roleData, error: roleError } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
-        .single()
+  // ----------------------------------------------------
+  // Fetch profile
+  // ----------------------------------------------------
+  const loadProfile = async (userId: string, email?: string) => {
+    const { data, error } = await supabase
+      .from("user_profiles" as any)
+      .select("*")
+      .eq("id", userId)
+      .single();
 
-      if (roleError) {
-        if (roleError.code === 'PGRST116') {
-          // Role doesn't exist, create default user role
-          const { error: insertError } = await supabase
-            .from('user_roles')
-            .insert([{
-              user_id: userId,
-              role: 'viewer' // Default role
-            }])
-          
-          if (insertError) {
-            console.error('Error creating user role:', insertError)
-          } else {
-            setRole('viewer')
-          }
-        } else {
-          console.error('Error fetching user role:', roleError)
-        }
-      } else {
-        setRole(roleData.role as UserRole)
+    // If profile does not exist → create one
+    if (error?.code === "PGRST116") {
+      const newProfile = {
+        id: userId,
+        email: email || "",
+        full_name: null,
+        avatar_url: null,
+        bio: null,
+        is_active: true,
+        last_login_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      const { error: insertError } = await supabase
+        .from("user_profiles" as any)
+        .insert([newProfile] as any);
+
+      if (!insertError) {
+        setProfile(newProfile);
+        return newProfile;
       }
-    } catch (err) {
-      console.error('Unexpected error loading user role:', err)
+
+      console.error("Profile creation failed:", insertError);
+      return null;
     }
-  }
 
-  // Fetch user profile from database
-  const fetchUserProfile = async (userId: string, userEmail?: string) => {
-    try {
-      const { data: profileData, error: profileError } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('id', userId)
-        .single()
-
-      if (profileError) {
-        if (profileError.code === 'PGRST116') {
-          // Profile doesn't exist, create one
-          const newProfile: UserProfile = {
-            id: userId,
-            email: userEmail || '',
-            full_name: null,
-            avatar_url: null,
-            bio: null,
-            is_active: true,
-            last_login_at: new Date().toISOString(),
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }
-
-          const { error: insertError } = await supabase
-            .from('user_profiles')
-            .insert([newProfile])
-
-          if (insertError) {
-            console.error('Error creating profile:', insertError)
-            setError('Failed to create user profile')
-          } else {
-            setProfile(newProfile)
-          }
-        } else {
-          console.error('Error fetching profile:', profileError)
-          setError('Failed to load user profile')
-        }
-      } else {
-        setProfile(profileData as UserProfile)
-      }
-    } catch (err) {
-      console.error('Unexpected error loading profile:', err)
-      setError('Unexpected error loading profile')
+    if (error) {
+      console.error("Profile load error:", error);
+      return null;
     }
-  }
 
+    if (!data) return null;
+
+    setProfile(data);
+    return data;
+  };
+
+  // ----------------------------------------------------
+  // Fetch role
+  // ----------------------------------------------------
+  const loadUserRole = async (userId: string) => {
+    const _res = await supabase
+      .from("user_roles" as any)
+      .select("role")
+      .eq("user_id", userId)
+      .single();
+
+    const data = _res.data as any
+    const error = _res.error
+
+    // Missing role → create default "viewer"
+    if (error?.code === "PGRST116") {
+      await supabase.from("user_roles" as any).insert([
+        {
+          user_id: userId,
+          role: "viewer",
+        },
+      ] as any);
+      setRole("viewer");
+      return "viewer";
+    }
+
+    if (error) {
+      console.error("Role load error:", error);
+      return null;
+    }
+
+    if (!data) return null;
+
+    setRole(data.role as UserRole);
+    return data.role as UserRole;
+  };
+
+  // ----------------------------------------------------
+  // Load session, user, profile, role
+  // ----------------------------------------------------
   useEffect(() => {
-    // Get initial session
-    const getSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        setSession(session)
-        setUser(session?.user ?? null)
-        
-        if (session?.user) {
-          await fetchUserProfile(session.user.id, session.user.email)
-          await fetchUserRole(session.user.id)
-        }
-        
-        setLoading(false)
-      } catch (err) {
-        console.error('Error getting session:', err)
-        setError('Failed to load session')
-        setLoading(false)
-      }
-    }
+    const init = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-    getSession()
+      setSession(session);
+      setUser(session?.user ?? null);
+
+      if (session?.user) {
+        await loadProfile(session.user.id, session.user.email);
+        await loadUserRole(session.user.id);
+      }
+
+      setLoading(false);
+    };
+
+    init();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session)
-        setUser(session?.user ?? null)
-        setError(null)
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
 
-        if (session?.user) {
-          await fetchUserProfile(session.user.id, session.user.email)
-          await fetchUserRole(session.user.id)
-        } else {
-          setProfile(null)
-          setRole(null)
-        }
-        
-        setLoading(false)
+      if (session?.user) {
+        await loadProfile(session.user.id, session.user.email);
+        await loadUserRole(session.user.id);
+      } else {
+        setProfile(null);
+        setRole(null);
       }
-    )
+    });
 
-    return () => subscription.unsubscribe()
-  }, [])
+    return () => subscription.unsubscribe();
+  }, []);
 
+  // ----------------------------------------------------
+  // Auth functions
+  // ----------------------------------------------------
   const signUp = async (email: string, password: string, fullName?: string) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: {
-          full_name: fullName
-        }
-      }
-    })
-    
-    if (error) throw error
-    return data
-  }
+      options: { data: { full_name: fullName ?? null } },
+    });
+
+    if (error) throw error;
+    return data;
+  };
 
   const signIn = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
-      password
-    })
-    
-    if (error) throw error
-    return data
-  }
+      password,
+    });
+
+    if (error) throw error;
+    return data;
+  };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut()
-    if (error) throw error
-  }
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+  };
 
   const resetPassword = async (email: string) => {
-    const { data, error } = await supabase.auth.resetPasswordForEmail(email)
-    if (error) throw error
-    return data
-  }
-
-  const value = {
-    user,
-    profile,
-    session,
-    loading,
-    error,
-    signUp,
-    signIn,
-    signOut,
-    resetPassword
-  }
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email);
+    if (error) throw error;
+    return data;
+  };
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider
+      value={{
+        user,
+        session,
+        profile,
+        role,
+        loading,
+        error,
+        signUp,
+        signIn,
+        signOut,
+        resetPassword,
+      }}
+    >
       {children}
     </AuthContext.Provider>
-  )
+  );
 }
