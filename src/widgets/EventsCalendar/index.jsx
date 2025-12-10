@@ -23,23 +23,30 @@ import moment from 'moment';
 import { useAllEvents } from '@hooks/useEvents';
 import LoadingScreen from '@components/LoadingScreen';
 
-const EventsCalendar = () => {
+const EventsCalendar = ({ 
+  currentView = 'day',
+  showTime = true,
+  title = 'Events Calendar',
+  minHour = 8,
+  maxHour = 22
+}) => {
     const {direction} = useThemeProvider();
-    const [currentView, setCurrentView] = useState('day');
-    const localizer = momentLocalizer(moment);
     const [currentDate, setCurrentDate] = useState(moment().toDate());
     const [currentTime, setCurrentTime] = useState(moment().format('HH:mm'));
     const {width} = useWindowSize();
+    const localizer = momentLocalizer(moment);
     
     // Get events from Supabase
     const { data: events, isLoading, error } = useAllEvents();
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentTime(moment().format('HH:mm'));
-        }, 1000);
-        return () => clearInterval(interval);
-    }, [currentTime]);
+        if (showTime) {
+            const interval = setInterval(() => {
+                setCurrentTime(moment().format('HH:mm'));
+            }, 1000);
+            return () => clearInterval(interval);
+        }
+    }, [currentTime, showTime]);
 
     const handleNavigation = (action) => {
         switch (action) {
@@ -126,8 +133,8 @@ const EventsCalendar = () => {
         endAccessor: 'end',
         onNavigate: handleNavigation,
         onView: setCurrentView,
-        min: moment().startOf('year').set({hour: 8, minute: 0}).toDate(),
-        max: moment().endOf('year').set({hour: 22, minute: 0}).toDate(),
+        min: moment().startOf('year').set({hour: minHour, minute: 0}).toDate(),
+        max: moment().endOf('year').set({hour: maxHour, minute: 0}).toDate(),
         step: 30,
         events: transformedEvents,
         formats: {
@@ -153,7 +160,7 @@ const EventsCalendar = () => {
                         currentView === 'month' && moment(date).format(getTitleFormat(date))
                     }
                     {
-                        currentView === 'day' && `${moment(date).format(getTitleFormat(date))}, ${currentTime}`
+                        currentView === 'day' && `${moment(date).format(getTitleFormat(date))}${showTime ? `, ${currentTime}` : ''}`
                     }
                 </h3>
                 <ViewNavigator current={currentView} handler={setCurrentView}/>
@@ -172,5 +179,19 @@ const EventsCalendar = () => {
         </Spring>
     )
 }
+
+EventsCalendar.meta = {
+  id: "calendar",
+  name: "Events Calendar",
+  category: "Utility",
+  defaultSize: { w: 4, h: 4 },
+  props: {
+    currentView: { type: "string", default: "day", description: "Current calendar view (month, week, day)" },
+    showTime: { type: "boolean", default: true, description: "Whether to show current time" },
+    title: { type: "string", default: "Events Calendar", description: "Calendar title" },
+    minHour: { type: "number", default: 8, description: "Minimum hour to display" },
+    maxHour: { type: "number", default: 22, description: "Maximum hour to display" }
+  }
+};
 
 export default EventsCalendar

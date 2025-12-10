@@ -1,10 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
 import TodosReducer from '../features/todos/todosSlice';
-import cmsPageReducer from '../redux/slices/cmsPageSlice';
+import pageLayoutsReducer from '../features/cms/pageLayoutsSlice';
 
 export default configureStore({
     reducer: {
         todos: TodosReducer,
-        cmsPage: cmsPageReducer,
+        pageLayouts: pageLayoutsReducer,
     }
 });

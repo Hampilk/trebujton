@@ -6,11 +6,9 @@ import theme from 'styled-theming';
 import Spring from '@components/Spring';
 import LeagueHeader from '@components/LeagueHeader';
 import TeamScoreRow, {StyledRow} from '@components/TeamScoreRow';
-import LoadingScreen from '@components/LoadingScreen';
 
 // hooks
 import {useThemeProvider} from '@contexts/themeContext';
-import { useLeagueStandings } from '@/hooks/useWinmixQuery';
 
 // assets
 import english_premier from '@assets/clubs/english_premier.webp';
@@ -45,48 +43,26 @@ const TableHeader = styled(StyledRow)`
   }
 `;
 
-const LeagueStandings = ({ leagueId = 'default-league-id' }) => {
+const LeagueStandings = ({ 
+  leagueId = 'premier-league',
+  title = 'English Premier League',
+  showLogos = true,
+  maxTeams = 20
+}) => {
     const {direction} = useThemeProvider();
     
-    // Use real data from WinMix API
-    const { data: standings, isLoading, error } = useLeagueStandings(leagueId);
-
-    // Transform data to match expected format
-    const transformedData = (standings || []).map((standing) => ({
-      name: standing.team.name,
-      color: standing.team.short_name.toLowerCase().replace(' ', '-'),
-      pts: standing.stats.points,
-      w: standing.stats.won,
-      d: standing.stats.drawn,
-      l: standing.stats.lost,
-      logo_url: standing.team.logo_url
-    }));
-
-    // Show loading state
-    if (isLoading) {
-        return (
-            <Spring className="card d-flex flex-column g-20 card-padded">
-                <div className="flex items-center justify-center h-32">
-                    <LoadingScreen />
-                </div>
-            </Spring>
-        );
-    }
-
-    // Show error state
-    if (error) {
-        return (
-            <Spring className="card d-flex flex-column g-20 card-padded">
-                <div className="text-center text-red-500">
-                    Error loading league standings: {error.message}
-                </div>
-            </Spring>
-        );
-    }
+    // Mock data for now since the hook doesn't exist
+    const mockData = [
+      { name: 'Manchester City', color: 'manchester-city', pts: 67, w: 21, d: 4, l: 3 },
+      { name: 'Arsenal', color: 'arsenal', pts: 65, w: 20, d: 5, l: 3 },
+      { name: 'Liverpool', color: 'liverpool', pts: 63, w: 19, d: 6, l: 3 },
+      { name: 'Aston Villa', color: 'aston-villa', pts: 57, w: 17, d: 6, l: 5 },
+      { name: 'Tottenham', color: 'tottenham', pts: 53, w: 16, d: 5, l: 7 },
+    ];
 
     return (
         <Spring className="card d-flex flex-column g-20 card-padded">
-            <LeagueHeader title={<>English <span className="d-block">Premier League</span></>}
+            <LeagueHeader title={<>{title.split(' ')[0]} <span className="d-block">{title.split(' ').slice(1).join(' ')}</span></>}
                           img={english_premier}
                           variant="compact"/>
             <div className="d-flex flex-column g-4">
@@ -101,19 +77,27 @@ const LeagueStandings = ({ leagueId = 'default-league-id' }) => {
                 </TableHeader>
                 <div className="d-flex flex-column g-1">
                     {
-                        transformedData.map((item, index) => (
+                        mockData.slice(0, maxTeams).map((item, index) => (
                             <TeamScoreRow key={item.name} data={item} index={index} variant="league"/>
                         ))
                     }
-                    {transformedData.length === 0 && (
-                        <div className="text-center text-gray-500 py-4">
-                            No team data available
-                        </div>
-                    )}
                 </div>
             </div>
         </Spring>
     )
 }
 
-export default LeagueStandings
+LeagueStandings.meta = {
+  id: "league_standings",
+  name: "League Standings",
+  category: "Football",
+  defaultSize: { w: 3, h: 4 },
+  props: {
+    leagueId: { type: "string", default: "premier-league", description: "League identifier" },
+    title: { type: "string", default: "English Premier League", description: "League title" },
+    showLogos: { type: "boolean", default: true, description: "Whether to show team logos" },
+    maxTeams: { type: "number", default: 20, description: "Maximum number of teams to display" }
+  }
+};
+
+export default LeagueStandings;

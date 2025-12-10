@@ -1,8 +1,13 @@
 import React, { useState, useMemo } from "react";
-import { widgetRegistry, getCategories } from "../index";
+import { widgetRegistry, getWidgetsByCategory, getCategories } from "../registry/widgetRegistry";
 import "./builder.css";
 
 const WidgetChip = ({ widget, onDragStart, onClick }) => {
+  const defaultProps = widget.props ? 
+    Object.fromEntries(
+      Object.entries(widget.props).map(([key, prop]) => [key, prop.default])
+    ) : {};
+
   return (
     <div
       draggable
@@ -11,7 +16,7 @@ const WidgetChip = ({ widget, onDragStart, onClick }) => {
           "text/plain",
           JSON.stringify({
             type: widget.id,
-            defaultProps: widget.meta?.defaultProps || {},
+            defaultProps: defaultProps,
           }),
         );
         onDragStart?.(widget);
@@ -19,16 +24,17 @@ const WidgetChip = ({ widget, onDragStart, onClick }) => {
       onClick={() => onClick?.(widget)}
       className="widget-chip p-3 bg-white rounded-lg shadow-sm border border-gray-200 cursor-move hover:shadow-md transition-shadow"
     >
-      {widget.meta?.icon && <span className="mr-2">{widget.meta.icon}</span>}
       <span className="font-medium text-sm">
-        {widget.meta?.name || widget.id}
+        {widget.name || widget.id}
       </span>
-      <p className="text-xs text-gray-500 mt-1">{widget.meta?.description}</p>
+      <p className="text-xs text-gray-500 mt-1">{widget.preview || 'Widget description'}</p>
     </div>
   );
 };
 
 export const WidgetPicker = ({ onWidgetSelect }) => {
+  const dispatch = useDispatch();
+  const currentPageId = useSelector(selectCurrentPageId);
   const [searchTerm, setSearchTerm] = useState("");
   const categories = getCategories();
 
@@ -50,10 +56,8 @@ export const WidgetPicker = ({ onWidgetSelect }) => {
     Object.entries(widgetsByCategory).forEach(([category, widgets]) => {
       const filteredWidgets = widgets.filter(
         (widget) =>
-          widget.meta?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          widget.meta?.description
-            ?.toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
+          widget.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (widget.preview && widget.preview.toLowerCase().includes(searchTerm.toLowerCase())) ||
           widget.id.toLowerCase().includes(searchTerm.toLowerCase()),
       );
       if (filteredWidgets.length > 0) {
@@ -64,6 +68,20 @@ export const WidgetPicker = ({ onWidgetSelect }) => {
   }, [widgetsByCategory, searchTerm]);
 
   const handleWidgetSelect = (widget) => {
+    // Create a new instance and add it to the layout
+    const newInstance = {
+      id: `${widget.id}-${Date.now()}`,
+      type: widget.id,
+      props: widget.meta?.defaultProps || {},
+      layout: {
+        x: 0,
+        y: 0, // Will be auto-positioned by the grid
+        w: widget.meta?.defaultSize?.w || 3,
+        h: widget.meta?.defaultSize?.h || 2,
+      },
+    };
+
+    dispatch(addWidgetInstance({ pageId: currentPageId, instance: newInstance }));
     onWidgetSelect?.(widget);
   };
 

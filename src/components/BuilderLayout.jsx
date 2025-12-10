@@ -6,8 +6,12 @@ import { useAutosaveLayout } from "@/hooks/cms/useAutosaveLayout";
 import {
   updateLayout,
   setCurrentPageId,
-} from "@/features/cms/pageLayoutsSlice";
-import GridEditor from "./GridEditor";
+  selectIsDirty,
+  selectLoadingState,
+} from "../../features/cms/pageLayoutsSlice";
+import { GridEditor } from "@/cms/builder/GridEditor";
+import { WidgetPicker } from "@/cms/builder/WidgetPicker";
+import PropsEditor from "@/cms/runtime/PropsEditor";
 import { toast } from "react-toastify";
 
 /**
@@ -16,8 +20,10 @@ import { toast } from "react-toastify";
  */
 function BuilderLayout({ pageId, initialLayout = null, onSave = null }) {
   const dispatch = useDispatch();
+  const [activePanel, setActivePanel] = useState("widgets"); // "widgets" | "props"
   const layouts = useSelector((state) => state.pageLayouts.layouts);
-  const isDirty = useSelector((state) => state.pageLayouts.isDirty);
+  const isDirty = useSelector(selectIsDirty);
+  const { isLoading, error, lastSaveTime } = useSelector(selectLoadingState);
 
   // Load layout from Supabase
   const { isLoading: isLoadingLayout, error: loadError } = usePageLayout(
@@ -81,12 +87,12 @@ function BuilderLayout({ pageId, initialLayout = null, onSave = null }) {
   }
 
   // Error state
-  if (loadError) {
+  if (loadError || error) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
           <p className="text-red-600 mb-4">Failed to load layout</p>
-          <p className="text-sm text-gray-500">{loadError.message}</p>
+          <p className="text-sm text-gray-500">{loadError?.message || error?.message}</p>
         </div>
       </div>
     );
@@ -108,6 +114,11 @@ function BuilderLayout({ pageId, initialLayout = null, onSave = null }) {
               Autosaving...
             </span>
           )}
+          {lastSaveTime && (
+            <span className="text-xs text-gray-500">
+              Last saved: {new Date(lastSaveTime).toLocaleTimeString()}
+            </span>
+          )}
         </div>
 
         {/* Action Buttons */}
@@ -126,15 +137,47 @@ function BuilderLayout({ pageId, initialLayout = null, onSave = null }) {
         </div>
       </div>
 
-      {/* Grid Editor */}
-      <div className="flex-1 overflow-auto">
-        <GridEditor
-          pageId={pageId}
-          layout={currentLayout}
-          onLayoutChange={(newLayout) => {
-            dispatch(updateLayout({ pageId, layoutData: newLayout }));
-          }}
-        />
+      {/* Main Builder Area */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left Sidebar - Widget Picker */}
+        <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
+          <div className="p-4 border-b border-gray-200">
+            <div className="flex gap-2">
+              <button
+                onClick={() => setActivePanel("widgets")}
+                className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  activePanel === "widgets"
+                    ? "bg-blue-100 text-blue-700"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                }`}
+              >
+                Widgets
+              </button>
+              <button
+                onClick={() => setActivePanel("props")}
+                className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  activePanel === "props"
+                    ? "bg-blue-100 text-blue-700"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                }`}
+              >
+                Properties
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-hidden">
+            {activePanel === "widgets" && <WidgetPicker />}
+            {activePanel === "props" && <PropsEditor pageId={pageId} onSave={handleSave} />}
+          </div>
+        </div>
+
+        {/* Main Grid Editor */}
+        <div className="flex-1 bg-gray-100 p-6 overflow-auto">
+          <div className="bg-white rounded-lg shadow-sm h-full min-h-[600px]">
+            <GridEditor />
+          </div>
+        </div>
       </div>
     </div>
   );

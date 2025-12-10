@@ -1,88 +1,60 @@
+// styling
+import styled from 'styled-components';
+import theme from 'styled-theming';
+
 // components
 import Spring from '@components/Spring';
-import ClubCard from '@components/ClubCard';
-import SelectionList from '@ui/SelectionList';
-import ScrollContainer from '@components/ScrollContainer';
+import TeamScoreRow, {StyledRow} from '@components/TeamScoreRow';
 
 // hooks
-import {useState} from 'react';
-import useMeasure from 'react-use-measure';
+import {useThemeProvider} from '@contexts/themeContext';
 
-// hooks
-import { useTeamsByCountry, useAllCountries } from '@hooks/useTeams';
-import LoadingScreen from '@components/LoadingScreen';
-
-const ClubsByCountry = () => {
-    const [country, setCountry] = useState('');
-    const [ref, {height}] = useMeasure();
+const ClubsByCountry = ({ 
+  title = 'Clubs by Country',
+  maxCountries = 10,
+  showCounts = true
+}) => {
+    const {direction} = useThemeProvider();
     
-    // Get countries and teams from Supabase
-    const { data: countries, isLoading: countriesLoading } = useAllCountries();
-    const { data: teams, isLoading: teamsLoading, error: teamsError } = useTeamsByCountry(country);
-
-    // Set initial country when countries are loaded
-    const selectedCountry = country || (countries && countries.length > 0 ? countries[0] : '');
-
-    // Show loading state
-    if (countriesLoading || (teamsLoading && country)) {
-        return (
-            <Spring className="card h-4">
-                <div className="flex items-center justify-center h-32">
-                    <LoadingScreen />
-                </div>
-            </Spring>
-        );
-    }
-
-    // Show error state
-    if (teamsError) {
-        return (
-            <Spring className="card h-4">
-                <div className="text-center text-red-500 p-4">
-                    Error loading teams: {teamsError.message}
-                </div>
-            </Spring>
-        );
-    }
-
-    // Show empty state
-    if (!countries || countries.length === 0) {
-        return (
-            <Spring className="card h-4">
-                <div className="text-center text-gray-500 p-4">
-                    No countries available
-                </div>
-            </Spring>
-        );
-    }
-
-    const clubs = teams || [];
+    // Mock data for now
+    const mockData = [
+      { country: 'England', count: 20, color: '#FF0000' },
+      { country: 'Spain', count: 18, color: '#FFA500' },
+      { country: 'Germany', count: 16, color: '#000000' },
+      { country: 'Italy', count: 15, color: '#008000' },
+      { country: 'France', count: 14, color: '#0000FF' },
+    ];
 
     return (
-        <Spring className="card h-4">
-            <SelectionList 
-                options={countries} 
-                active={selectedCountry} 
-                setActive={setCountry} 
-                innerRef={ref}
-            />
-            <ScrollContainer height={height}>
-                <div className="track d-flex flex-column g-20" style={{padding: 20}}>
-                    {
-                        clubs.length > 0 ? (
-                            clubs.map((club, index) => (
-                                <ClubCard key={`${club.id}-${selectedCountry}`} country={selectedCountry} club={club} index={index}/>
-                            ))
-                        ) : (
-                            <div className="text-center text-gray-500 py-8">
-                                No teams available for {selectedCountry}
+        <Spring className="card d-flex flex-column g-20 card-padded">
+            <h3>{title}</h3>
+            <div className="d-flex flex-column g-1">
+                {
+                    mockData.slice(0, maxCountries).map((item, index) => (
+                        <div key={item.country} className="d-flex justify-between align-items-center p-2">
+                            <div className="d-flex align-items-center g-2">
+                                <div style={{ width: 12, height: 12, backgroundColor: item.color, borderRadius: '50%' }} />
+                                <span>{item.country}</span>
                             </div>
-                        )
-                    }
-                </div>
-            </ScrollContainer>
+                            {showCounts && <span className="text-muted">{item.count} clubs</span>}
+                        </div>
+                    ))
+                }
+            </div>
         </Spring>
     )
 }
 
-export default ClubsByCountry
+ClubsByCountry.meta = {
+  id: "clubs_by_country",
+  name: "Clubs by Country",
+  category: "Analytics",
+  defaultSize: { w: 2, h: 3 },
+  props: {
+    title: { type: "string", default: "Clubs by Country", description: "Widget title" },
+    maxCountries: { type: "number", default: 10, description: "Maximum countries to display" },
+    showCounts: { type: "boolean", default: true, description: "Whether to show club counts" }
+  }
+};
+
+export default ClubsByCountry;
