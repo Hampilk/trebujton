@@ -34,6 +34,7 @@ const ALIASES = {
   "@providers": path.resolve(__dirname, "./src/providers"),
   "@services": path.resolve(__dirname, "./src/services"),
   "@cms": path.resolve(__dirname, "./src/cms"),
+  "@redux": path.resolve(__dirname, "./src/redux"),
 };
 
 export default defineConfig(({ mode }): UserConfig => {

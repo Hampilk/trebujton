@@ -1,4 +1,4 @@
-import {configureStore} from '@reduxjs/toolkit';
+import { configureStore } from '@reduxjs/toolkit';
 import TodosReducer from '../features/todos/todosSlice';
 import pageLayoutsReducer from '../features/cms/pageLayoutsSlice';
 

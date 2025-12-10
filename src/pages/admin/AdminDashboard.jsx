@@ -4,7 +4,7 @@ import { Activity, Cpu, Database, Gauge, LayoutDashboard, ShieldCheck, Users, Wo
 
 // Layout
 import PageHeader from '@layout/PageHeader';
-import AppGrid from '@layout/AppGrid';
+import CmsPageRuntime from '@components/CmsPageRuntime';
 import WidgetGroup from '@components/WidgetGroup';
 
 // Services
@@ -156,7 +156,17 @@ const AdminDashboardPage = () => {
         title="Admin Dashboard" 
         metaDescription="High-level overview of accounts, automations, and experimental systems"
       />
-      <AppGrid id="admin_dashboard_page" widgets={widgets} />
+      <CmsPageRuntime 
+        id="admin_dashboard_page" 
+        widgets={widgets}
+        cmsSlug="admin-dashboard"
+        onFallbackMode={(reason) => {
+          console.log(`AdminDashboard falling back to static mode: ${reason}`);
+        }}
+        onCmsDataLoaded={(data) => {
+          console.log('AdminDashboard loaded CMS data:', data);
+        }}
+      />
     </>
   );
 };
