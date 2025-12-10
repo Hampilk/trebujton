@@ -8,7 +8,7 @@ import {
   setCurrentPageId,
   selectIsDirty,
   selectLoadingState,
-} from "../../features/cms/pageLayoutsSlice";
+} from "@features/cms/pageLayoutsSlice";
 import { GridEditor } from "@/cms/builder/GridEditor";
 import { WidgetPicker } from "@/cms/builder/WidgetPicker";
 import PropsEditor from "@/cms/runtime/PropsEditor";
