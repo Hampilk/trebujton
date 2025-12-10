@@ -7,22 +7,26 @@ import {
   selectInstance,
   removeInstance,
   duplicateInstance,
-} from "../../features/pageBuilder/pageBuilderSlice";
+  addWidgetInstance,
+  selectCurrentPageId,
+  selectCurrentLayout,
+  selectSelectedInstanceId,
+} from "../../features/cms/pageLayoutsSlice";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import "./builder.css";
 
 export const GridEditor = () => {
   const dispatch = useDispatch();
-  const { layout, instancesById, selectedInstanceId } = useSelector(
-    (state) => state.pageBuilder,
-  );
+  const currentPageId = useSelector(selectCurrentPageId);
+  const { layout, instances } = useSelector(selectCurrentLayout);
+  const selectedInstanceId = useSelector(selectSelectedInstanceId);
 
   const handleLayoutChange = useCallback(
     (newLayout) => {
-      dispatch(updateInstanceLayout(newLayout));
+      dispatch(updateInstanceLayout({ pageId: currentPageId, layout: newLayout }));
     },
-    [dispatch],
+    [dispatch, currentPageId],
   );
 
   const handleWidgetDrop = useCallback((layout, layoutItem, _event) => {
@@ -43,13 +47,12 @@ export const GridEditor = () => {
     };
 
     // Dispatch action to add the new instance
-    // This would be handled by the drop handler in BuilderLayout
-    console.log("Widget dropped:", newInstance);
-  }, []);
+    dispatch(addWidgetInstance({ pageId: currentPageId, instance: newInstance }));
+  }, [dispatch, currentPageId]);
 
   const handleWidgetClick = useCallback(
     (instanceId) => {
-      dispatch(selectInstance(instanceId));
+      dispatch(selectInstance({ instanceId }));
     },
     [dispatch],
   );
@@ -57,17 +60,17 @@ export const GridEditor = () => {
   const handleRemoveWidget = useCallback(
     (instanceId, e) => {
       e.stopPropagation();
-      dispatch(removeInstance(instanceId));
+      dispatch(removeInstance({ pageId: currentPageId, instanceId }));
     },
-    [dispatch],
+    [dispatch, currentPageId],
   );
 
   const handleDuplicateWidget = useCallback(
     (instanceId, e) => {
       e.stopPropagation();
-      dispatch(duplicateInstance(instanceId));
+      dispatch(duplicateInstance({ pageId: currentPageId, instanceId }));
     },
-    [dispatch],
+    [dispatch, currentPageId],
   );
 
   return (
@@ -88,7 +91,7 @@ export const GridEditor = () => {
         margin={[16, 16]}
       >
         {layout.map((item) => {
-          const instance = instancesById[item.i];
+          const instance = instances[item.i];
           if (!instance) return null;
 
           const isSelected = selectedInstanceId === item.i;
@@ -149,7 +152,7 @@ export const GridEditor = () => {
               {/* Widget Content */}
               <div className="widget-content h-full overflow-auto">
                 <WidgetRenderer
-                  widgetType={instance.type}
+                  type={instance.type}
                   props={instance.props}
                   isBuilderPreview={true}
                 />

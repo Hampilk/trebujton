@@ -33,6 +33,8 @@ const WidgetChip = ({ widget, onDragStart, onClick }) => {
 };
 
 export const WidgetPicker = ({ onWidgetSelect }) => {
+  const dispatch = useDispatch();
+  const currentPageId = useSelector(selectCurrentPageId);
   const [searchTerm, setSearchTerm] = useState("");
   const categories = getCategories();
 
@@ -66,6 +68,20 @@ export const WidgetPicker = ({ onWidgetSelect }) => {
   }, [widgetsByCategory, searchTerm]);
 
   const handleWidgetSelect = (widget) => {
+    // Create a new instance and add it to the layout
+    const newInstance = {
+      id: `${widget.id}-${Date.now()}`,
+      type: widget.id,
+      props: widget.meta?.defaultProps || {},
+      layout: {
+        x: 0,
+        y: 0, // Will be auto-positioned by the grid
+        w: widget.meta?.defaultSize?.w || 3,
+        h: widget.meta?.defaultSize?.h || 2,
+      },
+    };
+
+    dispatch(addWidgetInstance({ pageId: currentPageId, instance: newInstance }));
     onWidgetSelect?.(widget);
   };
 
