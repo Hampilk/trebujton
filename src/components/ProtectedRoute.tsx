@@ -1,49 +1,24 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '@contexts/AuthContext';
+import React from 'react'
+import { Navigate } from 'react-router-dom'
+import { useAuth } from '@contexts/AuthContext'
+import LoadingScreen from '@components/LoadingScreen'
 
 interface ProtectedRouteProps {
-  children: React.ReactNode;
+  children: React.ReactNode
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, loading } = useAuth();
+export function ProtectedRoute({ children }: ProtectedRouteProps) {
+  const { user, loading } = useAuth()
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return <LoadingScreen />
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace />
   }
 
-  return <>{children}</>;
-};
-
-interface RoleProtectedRouteProps {
-  children: React.ReactNode;
-  allowedRoles: string[];
+  return <>{children}</>
 }
 
-export const RoleProtectedRoute: React.FC<RoleProtectedRouteProps> = ({ 
-  children, 
-  allowedRoles 
-}) => {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
-  }
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  const userRole = user.user_metadata?.role || 'user';
-
-  if (!allowedRoles.includes(userRole)) {
-    return <Navigate to="/" replace />;
-  }
-
-  return <>{children}</>;
-};
+export default ProtectedRoute

@@ -1,77 +1,119 @@
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { matchService } from '@/services/matchService'
 
-export interface Match {
-  id: string;
-  home_team_id: string;
-  away_team_id: string;
-  league_id: string;
-  date: string;
-  status: 'scheduled' | 'live' | 'finished';
-  home_score: number;
-  away_score: number;
-  half_time_home_score?: number;
-  half_time_away_score?: number;
+// Query keys
+export const matchKeys = {
+  all: ['matches'] as const,
+  lists: () => [...matchKeys.all, 'list'] as const,
+  list: (filters: string) => [...matchKeys.lists(), { filters }] as const,
+  details: () => [...matchKeys.all, 'detail'] as const,
+  detail: (id: string) => [...matchKeys.details(), id] as const,
 }
 
-export const useMatches = (filters?: {
-  status?: string;
-  league_id?: string;
-  date?: string;
-}) => {
+// Hooks for matches
+export const useUpcomingMatches = () => {
   return useQuery({
-    queryKey: ['matches', filters],
-    queryFn: async () => {
-      let query = supabase.from('matches').select('*');
-
-      if (filters?.status) {
-        query = query.eq('status', filters.status);
-      }
-      if (filters?.league_id) {
-        query = query.eq('league_id', filters.league_id);
-      }
-      if (filters?.date) {
-        query = query.gte('date', filters.date);
-      }
-
-      const { data, error } = await query.order('date', { ascending: true });
-
-      if (error) throw error;
-      return data as Match[];
-    },
-  });
-};
+    queryKey: matchKeys.list('upcoming'),
+    queryFn: matchService.getUpcomingMatches,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  })
+}
 
 export const useLiveMatches = () => {
   return useQuery({
-    queryKey: ['matches', 'live'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('matches')
-        .select('*')
-        .eq('status', 'live')
-        .order('date', { ascending: true });
+    queryKey: matchKeys.list('live'),
+    queryFn: matchService.getLiveMatches,
+    staleTime: 1000 * 60 * 2, // 2 minutes
+    refetchInterval: 30000, // 30 seconds for live matches
+  })
+}
 
-      if (error) throw error;
-      return data as Match[];
-    },
-    refetchInterval: 30 * 1000, // Refetch every 30 seconds for live matches
-  });
-};
+export const useFinishedMatches = (limit = 50) => {
+  return useQuery({
+    queryKey: matchKeys.list('finished'),
+    queryFn: () => matchService.getFinishedMatches(limit),
+    staleTime: 1000 * 60 * 10, // 10 minutes
+  })
+}
 
 export const useMatch = (id: string) => {
   return useQuery({
-    queryKey: ['matches', id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('matches')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (error) throw error;
-      return data as Match;
-    },
+    queryKey: matchKeys.detail(id),
+    queryFn: () => matchService.getMatchById(id),
     enabled: !!id,
-  });
-};
+  })
+}
+
+export const useMatchesByLeague = (leagueId: string) => {
+  return useQuery({
+    queryKey: [...matchKeys.list('byLeague'), leagueId],
+    queryFn: () => matchService.getMatchesByLeague(leagueId),
+    enabled: !!leagueId,
+  })
+}
+
+export const useMatchesByTeam = (teamId: string) => {
+  return useQuery({
+    queryKey: [...matchKeys.list('byTeam'), teamId],
+    queryFn: () => matchService.getMatchesByTeam(teamId),
+    enabled: !!teamId,
+  })
+}
+
+// Mutations
+export const useCreateMatch = () => {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: matchService.createMatch,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: matchKeys.lists() })
+    },
+  })
+}
+
+export const useUpdateMatchScore = () => {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: ({ matchId, homeScore, awayScore }: {
+      matchId: string
+      homeScore: number
+      awayScore: number
+    }) => matchService.updateMatchScore(matchId, homeScore, awayScore),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: matchKeys.lists() })
+    },
+  })
+}
+
+export const useUpdateMatchStatus = () => {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: ({ matchId, status }: {
+      matchId: string
+      status: 'scheduled' | 'live' | 'finished' | 'cancelled'
+    }) => matchService.updateMatchStatus(matchId, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: matchKeys.lists() })
+    },
+  })
+}
+
+export const useKnockoutMatches = (stage?: string) => {
+  return useQuery({
+    queryKey: [...matchKeys.list('knockout'), stage].filter(Boolean),
+    queryFn: () => matchService.getKnockoutMatches(stage),
+    staleTime: 1000 * 60 * 15, // 15 minutes for knockout matches
+  })
+}
+
+export const useMatchStatistics = (matchId?: string) => {
+  return useQuery({
+    queryKey: [...matchKeys.list('statistics'), matchId].filter(Boolean),
+    queryFn: () => matchService.getMatchStatistics(matchId || ''),
+    enabled: !!matchId,
+    staleTime: 1000 * 60 * 30, // 30 minutes for statistics
+  })
+}

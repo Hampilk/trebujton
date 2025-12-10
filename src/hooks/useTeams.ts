@@ -1,73 +1,107 @@
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { teamService } from '@/services/teamService'
 
-export interface Team {
-  id: string;
-  name: string;
-  short_name: string;
-  logo_url?: string;
-  league_id: string;
-  country: string;
+// Query keys
+export const teamKeys = {
+  all: ['teams'] as const,
+  lists: () => [...teamKeys.all, 'list'] as const,
+  list: (filters: string) => [...teamKeys.lists(), { filters }] as const,
+  details: () => [...teamKeys.all, 'detail'] as const,
+  detail: (id: string) => [...teamKeys.details(), id] as const,
 }
 
-export interface TeamStats {
-  team_id: string;
-  wins: number;
-  draws: number;
-  losses: number;
-  goals_for: number;
-  goals_against: number;
-  form: string;
-}
-
-export const useTeams = (league_id?: string) => {
+// Hooks for teams
+export const useAllTeams = () => {
   return useQuery({
-    queryKey: ['teams', league_id],
-    queryFn: async () => {
-      let query = supabase.from('teams').select('*');
+    queryKey: teamKeys.list('all'),
+    queryFn: teamService.getAllTeams,
+    staleTime: 1000 * 60 * 10, // 10 minutes
+  })
+}
 
-      if (league_id) {
-        query = query.eq('league_id', league_id);
-      }
-
-      const { data, error } = await query.order('name', { ascending: true });
-
-      if (error) throw error;
-      return data as Team[];
-    },
-  });
-};
+export const useTeamsByLeague = (leagueId: string) => {
+  return useQuery({
+    queryKey: [...teamKeys.list('byLeague'), leagueId],
+    queryFn: () => teamService.getTeamsByLeague(leagueId),
+    enabled: !!leagueId,
+  })
+}
 
 export const useTeam = (id: string) => {
   return useQuery({
-    queryKey: ['teams', id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('teams')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (error) throw error;
-      return data as Team;
-    },
+    queryKey: teamKeys.detail(id),
+    queryFn: () => teamService.getTeamById(id),
     enabled: !!id,
-  });
-};
+  })
+}
 
-export const useTeamStats = (team_id: string) => {
+export const useTeamWithStats = (id: string) => {
   return useQuery({
-    queryKey: ['team-stats', team_id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('team_stats')
-        .select('*')
-        .eq('team_id', team_id)
-        .single();
+    queryKey: [...teamKeys.detail(id), 'stats'],
+    queryFn: () => teamService.getTeamWithStats(id),
+    enabled: !!id,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  })
+}
 
-      if (error) throw error;
-      return data as TeamStats;
+export const useLeagueTable = (leagueId: string) => {
+  return useQuery({
+    queryKey: [...teamKeys.list('leagueTable'), leagueId],
+    queryFn: () => teamService.getLeagueTable(leagueId),
+    enabled: !!leagueId,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  })
+}
+
+// Mutations
+export const useCreateTeam = () => {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: teamService.createTeam,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: teamKeys.lists() })
     },
-    enabled: !!team_id,
-  });
-};
+  })
+}
+
+export const useUpdateTeam = () => {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) => 
+      teamService.updateTeam(id, data),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: teamKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: teamKeys.detail(data.id) })
+    },
+  })
+}
+
+export const useDeleteTeam = () => {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: teamService.deleteTeam,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: teamKeys.lists() })
+    },
+  })
+}
+
+export const useTeamsByCountry = (country: string) => {
+  return useQuery({
+    queryKey: [...teamKeys.list('by-country'), country],
+    queryFn: () => teamService.getTeamsByCountry(country),
+    enabled: !!country,
+    staleTime: 1000 * 60 * 15, // 15 minutes
+  })
+}
+
+export const useAllCountries = () => {
+  return useQuery({
+    queryKey: teamKeys.list('all-countries'),
+    queryFn: teamService.getAllCountries,
+    staleTime: 1000 * 60 * 60, // 1 hour for countries list
+  })
+}

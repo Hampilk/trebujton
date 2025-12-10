@@ -1,73 +1,93 @@
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { leagueService } from '@/services/leagueService'
 
-export interface League {
-  id: string;
-  name: string;
-  country: string;
-  logo_url?: string;
-  season: string;
+// Query keys
+export const leagueKeys = {
+  all: ['leagues'] as const,
+  lists: () => [...leagueKeys.all, 'list'] as const,
+  list: (filters: string) => [...leagueKeys.lists(), { filters }] as const,
+  details: () => [...leagueKeys.all, 'detail'] as const,
+  detail: (id: string) => [...leagueKeys.details(), id] as const,
 }
 
-export interface LeagueStanding {
-  position: number;
-  team_id: string;
-  team_name: string;
-  played: number;
-  won: number;
-  drawn: number;
-  lost: number;
-  goals_for: number;
-  goals_against: number;
-  goal_difference: number;
-  points: number;
-}
-
-export const useLeagues = () => {
+// Hooks for leagues
+export const useAllLeagues = () => {
   return useQuery({
-    queryKey: ['leagues'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('leagues')
-        .select('*')
-        .order('name', { ascending: true });
+    queryKey: leagueKeys.list('all'),
+    queryFn: leagueService.getAllLeagues,
+    staleTime: 1000 * 60 * 10, // 10 minutes
+  })
+}
 
-      if (error) throw error;
-      return data as League[];
-    },
-  });
-};
+export const useActiveLeagues = () => {
+  return useQuery({
+    queryKey: leagueKeys.list('active'),
+    queryFn: leagueService.getActiveLeagues,
+    staleTime: 1000 * 60 * 10, // 10 minutes
+  })
+}
 
 export const useLeague = (id: string) => {
   return useQuery({
-    queryKey: ['leagues', id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('leagues')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (error) throw error;
-      return data as League;
-    },
+    queryKey: leagueKeys.detail(id),
+    queryFn: () => leagueService.getLeagueById(id),
     enabled: !!id,
-  });
-};
+  })
+}
 
-export const useLeagueStandings = (league_id: string) => {
+export const useLeaguesByCountry = (country: string) => {
   return useQuery({
-    queryKey: ['league-standings', league_id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('league_standings')
-        .select('*')
-        .eq('league_id', league_id)
-        .order('position', { ascending: true });
+    queryKey: [...leagueKeys.list('byCountry'), country],
+    queryFn: () => leagueService.getLeaguesByCountry(country),
+    enabled: !!country,
+  })
+}
 
-      if (error) throw error;
-      return data as LeagueStanding[];
+// Mutations
+export const useCreateLeague = () => {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: leagueService.createLeague,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: leagueKeys.lists() })
     },
-    enabled: !!league_id,
-  });
-};
+  })
+}
+
+export const useUpdateLeague = () => {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) => 
+      leagueService.updateLeague(id, data),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: leagueKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: leagueKeys.detail(data.id) })
+    },
+  })
+}
+
+export const useDeleteLeague = () => {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: leagueService.deleteLeague,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: leagueKeys.lists() })
+    },
+  })
+}
+
+export const useToggleLeagueStatus = () => {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) => 
+      leagueService.toggleLeagueStatus(id, isActive),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: leagueKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: leagueKeys.detail(data.id) })
+    },
+  })
+}
