@@ -8,6 +8,26 @@ import StyledComponentsProvider from '@providers/StyledComponentsProvider';
 import App from './App';
 import store from './app/store';
 
+// Performance monitoring setup for JSX audit
+// Import React DevTools Profiler in development
+if (process.env.NODE_ENV === 'development') {
+  // Enable React DevTools Profiler API
+  import('react-dom/profiling');
+  
+  // Enable why-did-you-render if available (install via: npm i --save-dev @welldone-software/why-did-you-render)
+  try {
+    const whyDidYouRender = require('@welldone-software/why-did-you-render');
+    whyDidYouRender(React, {
+      trackAllPureComponents: true,
+      trackHooks: true,
+      logOnDifferentValues: true,
+    });
+    console.log('🔍 why-did-you-render enabled for performance audit');
+  } catch (e) {
+    console.log('⚠️  why-did-you-render not installed. Install with: npm i --save-dev @welldone-software/why-did-you-render');
+  }
+}
+
 // Root element megszerzése biztonságosan
 const rootElement = document.getElementById('root');
 
