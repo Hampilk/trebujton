@@ -6,17 +6,23 @@ import { server } from './msw/server'
 
 // Start MSW server before all tests
 beforeAll(() => {
-  server.listen({ onUnhandledRequest: 'error' })
+  if (server) {
+    server.listen({ onUnhandledRequest: 'error' })
+  }
 })
 
 // Reset handlers after each test
 afterEach(() => {
-  server.resetHandlers()
+  if (server) {
+    server.resetHandlers()
+  }
 })
 
 // Clean up server after all tests
 afterAll(() => {
-  server.close()
+  if (server) {
+    server.close()
+  }
 })
 
 // Mock environment variables for testing
