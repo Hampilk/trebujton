@@ -24,7 +24,12 @@ const data = [
     {a: 64, b: 26}
 ];
 
-const TrainingPaceChart = () => {
+const TrainingPaceChart = ({ 
+  timeSlots = ["8:00", "12:00", "16:00", "20:00"], 
+  title = "Training pace",
+  showTimeSlots = true,
+  height = 300 
+}) => {
     const {direction} = useThemeProvider();
     const {width} = useWindowSize();
     const [points, setPoints] = useState([]);
@@ -43,15 +48,16 @@ const TrainingPaceChart = () => {
     return (
         <Spring className="card card--side-shadow d-flex flex-column g-10 h-1">
             <div className="card_header d-flex flex-column g-4" style={{marginBottom: -10}}>
-                <h3>Training pace</h3>
-                <div className="d-flex justify-content-between h6 g-20">
-                    <span>8:00</span>
-                    <span>12:00</span>
-                    <span>16:00</span>
-                    <span>20:00</span>
-                </div>
+                <h3>{title}</h3>
+                {showTimeSlots && (
+                    <div className="d-flex justify-content-between h6 g-20">
+                        {timeSlots.map((slot, index) => (
+                            <span key={index}>{slot}</span>
+                        ))}
+                    </div>
+                )}
             </div>
-            <ResponsiveContainer className="flex-1" width="100%" height="100%" id="trainingShapeChart">
+            <ResponsiveContainer className="flex-1" width="100%" height={height} id="trainingShapeChart">
                 <AreaChart data={data} margin={{top: 4, right: 0, left: 0, bottom: 4}}>
                     <defs>
                         <linearGradient id="gridLine" x1="-5.10517e-05" y1="0" x2="-5.10517e-05" y2="169.677"
@@ -91,5 +97,18 @@ const TrainingPaceChart = () => {
         </Spring>
     )
 }
+
+TrainingPaceChart.meta = {
+  id: "training_pace",
+  name: "Training Pace Chart",
+  category: "Analytics",
+  defaultSize: { w: 3, h: 2 },
+  props: {
+    timeSlots: { type: "array", default: ["8:00", "12:00", "16:00", "20:00"], description: "Time slot labels" },
+    title: { type: "string", default: "Training pace", description: "Chart title" },
+    showTimeSlots: { type: "boolean", default: true, description: "Whether to show time slots" },
+    height: { type: "number", default: 300, description: "Chart height in pixels" }
+  }
+};
 
 export default TrainingPaceChart

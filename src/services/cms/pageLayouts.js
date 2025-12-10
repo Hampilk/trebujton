@@ -2,39 +2,45 @@ import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Load a page layout by page ID
- * Returns both page metadata and the latest layout
+ * Returns both page metadata, layout_json (from page_layouts), and theme_overrides (from pages)
  */
 export async function loadPageLayout(pageId) {
   try {
-    const { data, error } = await supabase
+    // First, get the page metadata including theme_overrides
+    const { data: pageData, error: pageError } = await supabase
+      .from("pages")
+      .select("id, slug, title, is_published, created_at, theme_overrides")
+      .eq("id", pageId)
+      .single();
+
+    if (pageError) {
+      if (pageError.code === "PGRST116") {
+        return null; // No page found
+      }
+      throw pageError;
+    }
+
+    // Then get the latest layout from page_layouts
+    const { data: layoutData, error: layoutError } = await supabase
       .from("page_layouts")
-      .select(
-        `
-        id,
-        layout_json,
-        updated_at,
-        pages:page_id (
-          id,
-          slug,
-          title,
-          is_published,
-          created_at
-        )
-      `,
-      )
+      .select("id, layout_json, updated_at")
       .eq("page_id", pageId)
       .order("updated_at", { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle();
 
-    if (error) {
-      if (error.code === "PGRST116") {
-        return null; // No layout found
-      }
-      throw error;
+    if (layoutError) {
+      throw layoutError;
     }
 
-    return data;
+    // Combine the data
+    return {
+      id: layoutData?.id,
+      layout_json: layoutData?.layout_json || {},
+      updated_at: layoutData?.updated_at,
+      pages: pageData,
+      theme_overrides: pageData.theme_overrides || {},
+    };
   } catch (error) {
     console.error("Error loading page layout:", error);
     throw error;
@@ -43,11 +49,17 @@ export async function loadPageLayout(pageId) {
 
 /**
  * Save or update a page layout
- * Upserts the layout_json with the Redux slice shape
+ * Upserts the layout_json in page_layouts table
+ * Optionally updates theme_overrides in pages table
  */
-export async function savePageLayout(pageId, layoutPayload) {
+export async function savePageLayout(
+  pageId,
+  layoutPayload,
+  themeOverrides = null,
+) {
   try {
-    const { data, error } = await supabase
+    // Save layout_json to page_layouts
+    const { data: layoutData, error: layoutError } = await supabase
       .from("page_layouts")
       .upsert(
         {
@@ -62,11 +74,27 @@ export async function savePageLayout(pageId, layoutPayload) {
       .select()
       .single();
 
-    if (error) {
-      throw error;
+    if (layoutError) {
+      throw layoutError;
     }
 
-    return data;
+    // If theme_overrides are provided, update the pages table
+    if (themeOverrides !== null) {
+      const { error: themeError } = await supabase
+        .from("pages")
+        .update({
+          theme_overrides: themeOverrides,
+          updated_at: new Date().toISOString(),
+          updated_by: (await supabase.auth.getUser()).data?.user?.id,
+        })
+        .eq("id", pageId);
+
+      if (themeError) {
+        throw themeError;
+      }
+    }
+
+    return layoutData;
   } catch (error) {
     console.error("Error saving page layout:", error);
     throw error;
@@ -74,15 +102,21 @@ export async function savePageLayout(pageId, layoutPayload) {
 }
 
 /**
- * Create a new page with initial layout
+ * Create a new page with initial layout and theme overrides
  */
-export async function createPage(slug, title, initialLayout = null) {
+export async function createPage(
+  slug,
+  title,
+  initialLayout = null,
+  themeOverrides = null,
+) {
   try {
     const { data: pageData, error: pageError } = await supabase
       .from("pages")
       .insert({
         slug,
         title,
+        theme_overrides: themeOverrides || {},
       })
       .select()
       .single();
@@ -113,12 +147,13 @@ export async function createPage(slug, title, initialLayout = null) {
 
 /**
  * Get page by slug
+ * Includes theme_overrides
  */
 export async function getPageBySlug(slug) {
   try {
     const { data, error } = await supabase
       .from("pages")
-      .select("*")
+      .select("id, slug, title, is_published, created_at, theme_overrides")
       .eq("slug", slug)
       .single();
 
@@ -172,5 +207,106 @@ export async function updatePageMetadata(pageId, updates) {
   } catch (error) {
     console.error("Error updating page metadata:", error);
     throw error;
+  }
+}
+
+/**
+ * Update only the theme overrides for a page
+ */
+export async function updatePageThemeOverrides(pageId, themeOverrides) {
+  try {
+    const { data, error } = await supabase
+      .from("pages")
+      .update({
+        theme_overrides: themeOverrides,
+        updated_at: new Date().toISOString(),
+        updated_by: (await supabase.auth.getUser()).data?.user?.id,
+      })
+      .eq("id", pageId)
+      .select()
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error updating page theme overrides:", error);
+    throw error;
+  }
+}
+
+/**
+ * Merge page theme overrides (useful for partial updates)
+ */
+export async function mergePageThemeOverrides(pageId, partialOverrides) {
+  try {
+    // First load the existing page
+    const existingPageLayout = await loadPageLayout(pageId);
+
+    if (!existingPageLayout) {
+      throw new Error("Page not found");
+    }
+
+    // Merge the overrides
+    const mergedOverrides = {
+      ...(existingPageLayout.theme_overrides || {}),
+      ...partialOverrides,
+    };
+
+    // Save the merged overrides
+    return await updatePageThemeOverrides(pageId, mergedOverrides);
+  } catch (error) {
+    console.error("Error merging page theme overrides:", error);
+    throw error;
+  }
+}
+
+/**
+ * Get page theme override audit log
+ */
+export async function getPageThemeOverrideAuditLog(pageId, limit = 50) {
+  try {
+    const { data, error } = await supabase
+      .from("page_theme_override_audit")
+      .select("*")
+      .eq("page_id", pageId)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      if (error.code === "PGRST116" || error.code === "42P01") {
+        // Table might not exist yet
+        return [];
+      }
+      throw error;
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error("Error fetching audit log:", error);
+    return [];
+  }
+}
+
+/**
+ * Get all pages with their theme overrides
+ */
+export async function getAllPages() {
+  try {
+    const { data, error } = await supabase
+      .from("pages")
+      .select("id, slug, title, is_published, created_at, theme_overrides")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error("Error fetching all pages:", error);
+    return [];
   }
 }
