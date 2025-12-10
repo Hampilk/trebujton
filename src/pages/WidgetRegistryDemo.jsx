@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { widgetRegistry, getCategories } from "@cms/registry/widgetRegistry";
 import WidgetRenderer from "@cms/runtime/WidgetRenderer";
 
 const WidgetRegistryDemo = () => {
   const categories = getCategories();
+  const [selectedWidget, setSelectedWidget] = useState(null);
 
   return (
     <div style={{ padding: "40px" }}>
@@ -59,7 +60,7 @@ const WidgetRegistryDemo = () => {
               marginBottom: "12px",
             }}
           >
-            Registered Widgets
+            Registered Widgets with Props
           </h2>
           <ul style={{ listStyle: "none", padding: 0 }}>
             {widgetRegistry.map((widget) => (
@@ -71,7 +72,9 @@ const WidgetRegistryDemo = () => {
                   backgroundColor: "white",
                   borderRadius: "6px",
                   border: "1px solid #e0e0e0",
+                  cursor: "pointer",
                 }}
+                onClick={() => setSelectedWidget(widget)}
               >
                 <div
                   style={{
@@ -109,12 +112,45 @@ const WidgetRegistryDemo = () => {
                 <div
                   style={{ marginTop: "8px", fontSize: "14px", color: "#666" }}
                 >
-                  Default size: {widget.defaultSize.w}x{widget.defaultSize.h}
+                  Default size: {widget.defaultSize.w}x{widget.defaultSize.h} | 
+                  Props: {Object.keys(widget.props || {}).length}
                 </div>
               </li>
             ))}
           </ul>
         </div>
+
+        {selectedWidget && (
+          <div
+            style={{
+              padding: "20px",
+              backgroundColor: "#f0fdf4",
+              borderRadius: "8px",
+              marginBottom: "24px",
+            }}
+          >
+            <h2
+              style={{
+                fontSize: "18px",
+                fontWeight: "600",
+                marginBottom: "12px",
+              }}
+            >
+              Selected Widget Props Schema
+            </h2>
+            <pre
+              style={{
+                backgroundColor: "white",
+                padding: "12px",
+                borderRadius: "4px",
+                fontSize: "12px",
+                overflow: "auto",
+              }}
+            >
+              {JSON.stringify(selectedWidget.props, null, 2)}
+            </pre>
+          </div>
+        )}
       </div>
 
       <div>
@@ -137,7 +173,13 @@ const WidgetRegistryDemo = () => {
             </h3>
             <WidgetRenderer
               type="team_stats"
-              props={{ teamId: "real-madrid", season: "2024" }}
+              props={{ 
+                teamId: "real-madrid", 
+                teamName: "Real Madrid",
+                wins: 25,
+                draws: 6,
+                losses: 7
+              }}
             />
           </div>
 
@@ -147,7 +189,79 @@ const WidgetRegistryDemo = () => {
             </h3>
             <WidgetRenderer
               type="league_table"
-              props={{ league: "La Liga", season: "2023-24" }}
+              props={{ 
+                league: "La Liga", 
+                season: "2023-24" 
+              }}
+            />
+          </div>
+
+          <div>
+            <h3 style={{ fontSize: "18px", marginBottom: "12px" }}>
+              Attendance Widget
+            </h3>
+            <WidgetRenderer
+              type="attendance"
+              props={{ 
+                attendance: 65000,
+                stadiumName: "Camp Nou",
+                location: "Barcelona",
+                title: "Match attendance"
+              }}
+            />
+          </div>
+
+          <div>
+            <h3 style={{ fontSize: "18px", marginBottom: "12px" }}>
+              TrainingPace Widget
+            </h3>
+            <WidgetRenderer
+              type="training_pace"
+              props={{ 
+                title: "Player Training Pace",
+                timeSlots: ["6:00", "10:00", "14:00", "18:00", "22:00"]
+              }}
+            />
+          </div>
+
+          <div>
+            <h3 style={{ fontSize: "18px", marginBottom: "12px" }}>
+              MatchResult Widget
+            </h3>
+            <WidgetRenderer
+              type="match_result"
+              props={{ 
+                selectedStage: "final",
+                title: "Champions League Final"
+              }}
+            />
+          </div>
+
+          <div>
+            <h3 style={{ fontSize: "18px", marginBottom: "12px" }}>
+              Calendar Widget
+            </h3>
+            <WidgetRenderer
+              type="calendar"
+              props={{ 
+                currentView: "week",
+                showTime: false,
+                title: "Team Schedule"
+              }}
+            />
+          </div>
+
+          <div>
+            <h3 style={{ fontSize: "18px", marginBottom: "12px" }}>
+              Messages Widget
+            </h3>
+            <WidgetRenderer
+              type="messages"
+              props={{ 
+                title: "Team Chat",
+                maxMessages: 10,
+                showDateSeparator: false
+              }}
             />
           </div>
 
