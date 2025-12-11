@@ -22,7 +22,7 @@ import {
   epsilonGreedySelect, 
   updateModel, 
   deleteModel 
-} from '@/integrations/models/service';
+} from '../integrations/models/service';
 
 // Utilities
 import { supabase } from '@/integrations/supabase/client';

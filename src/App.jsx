@@ -61,6 +61,14 @@ const Product = lazy(() => import("@pages/Product"));
 const Login = lazy(() => import("@pages/Login"));
 const SignUp = lazy(() => import("@pages/SignUp"));
 const Settings = lazy(() => import("@pages/Settings"));
+const Teams = lazy(() => import("@pages/Teams"));
+const TeamDetail = lazy(() => import("@pages/TeamDetail"));
+
+// Admin Pages
+const AdminDashboard = lazy(() => import("@pages/admin/AdminDashboard"));
+const ModelsPage = lazy(() => import("@pages/ModelsPage"));
+const PredictionReviewPage = lazy(() => import("@pages/admin/PredictionReviewPage"));
+const ModelStatusDashboard = lazy(() => import("@pages/admin/ModelStatusDashboard"));
 
 // WinMix Pro Admin (CMS)
 const WinmixProAdmin = lazy(() => import("@pages/winmixpro"));
@@ -162,6 +170,40 @@ const App = () => {
                             <Route path="/brand-store" element={<ProtectedRoute><BrandStore /></ProtectedRoute>} />
                             <Route path="/product" element={<ProtectedRoute><Product /></ProtectedRoute>} />
                             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+                            
+                            {/* Teams */}
+                            <Route path="/teams" element={<ProtectedRoute><Teams /></ProtectedRoute>} />
+                            <Route path="/teams/:id" element={<ProtectedRoute><TeamDetail /></ProtectedRoute>} />
+                            
+                            {/* Admin Routes */}
+                            <Route path="/admin" element={
+                              <ProtectedRoute>
+                                <RoleGate allowedRoles={["admin"]}>
+                                  <AdminDashboard />
+                                </RoleGate>
+                              </ProtectedRoute>
+                            } />
+                            <Route path="/models" element={
+                              <ProtectedRoute>
+                                <RoleGate allowedRoles={["admin"]}>
+                                  <ModelsPage />
+                                </RoleGate>
+                              </ProtectedRoute>
+                            } />
+                            <Route path="/admin/prediction-review" element={
+                              <ProtectedRoute>
+                                <RoleGate allowedRoles={["admin"]}>
+                                  <PredictionReviewPage />
+                                </RoleGate>
+                              </ProtectedRoute>
+                            } />
+                            <Route path="/admin/model-status" element={
+                              <ProtectedRoute>
+                                <RoleGate allowedRoles={["admin"]}>
+                                  <ModelStatusDashboard />
+                                </RoleGate>
+                              </ProtectedRoute>
+                            } />
 
                             {/* Admin (CMS) */}
                             <Route
