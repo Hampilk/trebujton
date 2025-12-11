@@ -63,4 +63,13 @@ const PassesPolarChart = () => {
     )
 }
 
+PassesPolarChart.meta = {
+  id: 'passes_polar_chart',
+  name: 'Passes Polar Chart',
+  category: 'Football',
+  defaultSize: { w: 1, h: 2 },
+  props: {},
+  preview: 'Radar chart comparing passes and statistics between teams',
+};
+
 export default PassesPolarChart
