@@ -76,4 +76,24 @@ const LineDotsChart = () => {
     )
 }
 
+LineDotsChart.meta = {
+  id: 'line_dots_chart',
+  name: 'Line Dots Chart',
+  category: 'Football',
+  defaultSize: { w: 1, h: 1 },
+  props: {
+    playerId: {
+      type: 'number',
+      default: 7,
+      description: 'Player ID',
+    },
+    playerName: {
+      type: 'string',
+      default: 'João Félix',
+      description: 'Player name',
+    },
+  },
+  preview: 'Scatter chart showing player minutes distribution',
+};
+
 export default LineDotsChart

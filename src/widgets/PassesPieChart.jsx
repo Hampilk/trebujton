@@ -63,4 +63,13 @@ const PassesPieChart = () => {
     )
 }
 
+PassesPieChart.meta = {
+  id: 'passes_pie_chart',
+  name: 'Passes Pie Chart',
+  category: 'Football',
+  defaultSize: { w: 1, h: 2 },
+  props: {},
+  preview: 'Pie chart showing pass distribution statistics',
+};
+
 export default PassesPieChart

@@ -203,4 +203,13 @@ const MatchesOverview = () => {
     );
 };
 
+MatchesOverview.meta = {
+  id: 'matches_overview',
+  name: 'Matches Overview',
+  category: 'Football',
+  defaultSize: { w: 2, h: 3 },
+  props: {},
+  preview: 'Live and finished matches overview with tabs',
+};
+
 export default MatchesOverview

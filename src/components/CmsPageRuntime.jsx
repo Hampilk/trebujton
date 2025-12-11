@@ -18,6 +18,7 @@ import {
 // CMS Components
 import { WidgetRenderer } from '@cms/runtime/WidgetRenderer';
 import { CmsThemeProvider } from '@cms/theme/ThemeProvider';
+import { buildWidgetMap } from '@cms/runtime/buildWidgetMap';
 
 // Layout
 import AppGrid from '@layout/AppGrid';
@@ -132,30 +133,14 @@ const CmsPageRuntime = ({
     }
   }, [cmsQueryData, dispatch, onCmsDataLoaded, onFallbackMode]);
 
-  // Generate widgets from CMS layout data
+  // Generate widgets from CMS layout data using buildWidgetMap
   const cmsWidgets = useMemo(() => {
     if (!isInitialized || !cmsLayout || !cmsInstances) {
       return null;
     }
 
-    const generatedWidgets = {};
-    
-    cmsLayout.forEach((layoutItem) => {
-      const { i: instanceId } = layoutItem;
-      const instance = cmsInstances[instanceId];
-      
-      if (instance) {
-        generatedWidgets[instanceId] = (
-          <WidgetRenderer
-            key={instanceId}
-            type={instance.type}
-            props={instance.props || {}}
-            variant={instance.variant || 'default'}
-            instanceId={instanceId}
-          />
-        );
-      }
-    });
+    // Use buildWidgetMap to build widgets from registry
+    const generatedWidgets = buildWidgetMap(cmsLayout, cmsInstances);
     
     return generatedWidgets;
   }, [isInitialized, cmsLayout, cmsInstances]);

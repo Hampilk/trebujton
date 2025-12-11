@@ -51,4 +51,19 @@ const AccountSettings = () => {
     )
 }
 
+AccountSettings.meta = {
+  id: 'account_settings',
+  name: 'Account Settings',
+  category: 'User',
+  defaultSize: { w: 2, h: 2 },
+  props: {
+    activeTab: {
+      type: 'string',
+      default: 'profile',
+      description: 'Active tab (profile or basic)',
+    },
+  },
+  preview: 'Account management interface with tabs for profile and settings',
+};
+
 export default AccountSettings

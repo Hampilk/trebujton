@@ -10,6 +10,8 @@ The CMS layout runtime feature consists of several key components:
 2. **CMS Redux Slice** - Manages CMS page state in Redux
 3. **Enhanced AppGrid** - Can now render both static and CMS-driven layouts
 4. **WidgetRenderer** - Renders individual widgets based on CMS configuration
+5. **Widget Registry** - Auto-discovers and registers all widgets with metadata
+6. **buildWidgetMap** - Helper to construct widget maps from registry entries
 
 ## Quick Start
 
@@ -98,6 +100,107 @@ When CMS data is loaded, it follows this structure:
     primaryColor: '#3b82f6',
   },
 }
+```
+
+## Widget Authoring & Registry
+
+### Creating CMS-Ready Widgets
+
+All widgets must include a `.meta` block attached to the component to be registered in the Widget Registry and usable in CMS layouts.
+
+#### Step 1: Add Component Meta
+
+Add a meta object to your widget component:
+
+```jsx
+// src/widgets/MyWidget.jsx
+const MyWidget = (props) => {
+  return <div>My Widget</div>;
+};
+
+MyWidget.meta = {
+  id: 'my_widget',
+  name: 'My Widget',
+  category: 'Custom',
+  defaultSize: { w: 2, h: 2 },
+  props: {
+    title: {
+      type: 'string',
+      default: 'Default Title',
+      description: 'Widget title',
+      required: false,
+    },
+    count: {
+      type: 'number',
+      default: 0,
+      description: 'Display count',
+    },
+  },
+  preview: 'A custom widget for displaying data',
+};
+
+export default MyWidget;
+```
+
+#### Step 2: Meta Properties Reference
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `id` | `string` | ✅ | Unique widget identifier (snake_case) |
+| `name` | `string` | ✅ | Human-readable widget name |
+| `category` | `string` | ✅ | Widget category (e.g., "Football", "Shop", "User") |
+| `defaultSize` | `object` | ✅ | Default dimensions: `{ w: number, h: number }` |
+| `props` | `object` | ✅ | Prop definitions for builder UIs |
+| `preview` | `string` | ❌ | Short description for CMS builder |
+| `styleVariants` | `array` | ❌ | Supported style variants |
+
+#### Step 3: Widget Discovery
+
+Widgets are automatically discovered from:
+- Directory-based widgets: `/src/widgets/WidgetName/index.jsx`
+- Flat widget files: `/src/widgets/WidgetName.jsx`
+
+The Widget Registry (`src/cms/registry/widgetRegistry.ts`) automatically globs all widgets and registers those with valid `.meta` blocks.
+
+#### Step 4: Using buildWidgetMap
+
+When building CMS layouts programmatically, use `buildWidgetMap` to construct widget objects:
+
+```jsx
+import { buildWidgetMap } from '@cms/runtime/buildWidgetMap';
+
+// From layout definition and instances
+const widgets = buildWidgetMap(layout, instances);
+
+// From static layout ID
+import { buildWidgetMapFromLayoutId } from '@cms/runtime/buildWidgetMap';
+const widgets = await buildWidgetMapFromLayoutId('club_summary', instances);
+```
+
+### Widget Registry Queries
+
+Access the widget registry to find available widgets:
+
+```jsx
+import {
+  widgetRegistry,
+  getWidgetById,
+  getWidgetsByCategory,
+  getCategories,
+  getWidgetPropSchema,
+} from '@cms/registry/widgetRegistry';
+
+// Find a specific widget
+const teamStats = getWidgetById('team_stats');
+
+// Find all widgets in a category
+const footballWidgets = getWidgetsByCategory('Football');
+
+// Get all available categories
+const categories = getCategories();
+
+// Get prop schema for builder UIs
+const schema = getWidgetPropSchema('team_stats');
 ```
 
 ## Migration Guide
