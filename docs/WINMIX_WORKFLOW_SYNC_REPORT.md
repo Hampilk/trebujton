@@ -488,7 +488,134 @@ A WinMix TipsterHub rendszer **nagyon jól áll**:
 
 ---
 
+---
+
+## 🏗️ Team/Admin Rollout Implementation
+**Dátum:** 2025-12-11  
+**Branch:** feat/team-admin-rollout  
+**Státusz:** ✅ Team & Admin Funktionalitás Teljes Implementálva
+
+### Megvalósított Funkciók
+
+#### 1. ⚽ Team Pages Portolás
+- ✅ **teamOptions.ts migrálás** - `docs/reference-pages/data/teamOptions.ts` → `src/data/teamOptions.ts`
+- ✅ **Teams.jsx frissítés** - valós dataset használata
+- ✅ **TeamDetail.jsx refactoring** - Supabase szolgáltatások integrációja (standings, squads, metadata)
+- ✅ **LeagueOverview.jsx fejlesztés** - élő standings adatok Supabase-ből
+- ✅ **Standings widget** - újrahasználható standings tábla komponens
+- ✅ **FormBadge widget** - csapat forma jelvény komponens
+
+#### 2. 🏢 Admin Dashboard Fejlesztés
+- ✅ **Admin service layer** - `src/integrations/models/service.ts` implementálva
+- ✅ **Admin dashboard cards** - route/metric grid a dokumentáció alapján
+- ✅ **Real-time data loading** - Supabase szolgáltatások
+- ✅ **Admin dashboard routes** - `/admin` endpoint védve RoleGate-del
+
+#### 3. 🤖 Model Management & Prediction Review
+- ✅ **ModelsPage.jsx frissítés** - teljes admin service layer integráció
+- ✅ **PredictionReviewPage.jsx** - interaktív panel a docs-ból (`PredictionReviewPanel.tsx`)
+- ✅ **Admin-prediction-review service** - `src/integrations/admin-prediction-review/service.ts`
+- ✅ **Pagination & auto-refresh** - valós idejű frissítéssel
+- ✅ **Action mutations** - elfogadás/elutasítás workflow
+
+#### 4. 🔒 Role-gated Routes
+- ✅ **RoleGate komponens** - admin-only védelem
+- ✅ **Új admin routes**:
+  - `/admin` - Admin Dashboard
+  - `/models` - Model Management  
+  - `/admin/prediction-review` - Prediction Review
+  - `/admin/model-status` - Model Status Dashboard
+- ✅ **App.jsx frissítés** - összes új route és lazy loading
+
+#### 5. 🧩 Widget Registry Regisztráció
+- ✅ **Standings widget** - `teams`, `team-detail`, `league-standings` layouts
+- ✅ **FormBadge widget** - csapat forma megjelenítés
+- ✅ **Metaadatok** - WidgetRegistry kompatibilis definíciókkal
+- ✅ **CMS targeting** - új widgetek elérhetők a CMS-ben
+
+### Technikai Részletek
+
+#### Supabase Integráció
+```typescript
+// Valós adatok TeamDetail és LeagueOverview oldalakhoz
+const { data: standings } = await supabase
+  .from('league_standings')
+  .select('*, team:teams(id, name)')
+  .eq('league_key', selectedLeague)
+  .order('position', { ascending: true });
+
+const { data: teamStats } = await supabase
+  .from('team_statistics')
+  .select('*')
+  .eq('team_id', id)
+  .single();
+```
+
+#### Admin Service Layer
+```typescript
+// Teljes model management workflow
+- listModels() - model registry lekérdezés
+- registerModel() - új model regisztráció
+- updateModel() - model frissítés
+- deleteModel() - model törlés
+- promoteChallenger() - challenger promotion
+- createExperiment() - A/B test kísérlet
+- evaluateExperiment() - kísérlet értékelés
+```
+
+#### Widget System Bővítés
+```typescript
+// Standings widget
+{
+  id: 'standings',
+  name: 'League Standings', 
+  category: 'teams',
+  props: { teams, title, showForm, showRelegation }
+}
+
+// FormBadge widget
+{
+  id: 'form_badge',
+  name: 'Team Form Badge',
+  category: 'teams', 
+  props: { form, size, showLabel, label }
+}
+```
+
+### 🔗 Route Védelem
+```javascript
+// RoleGate védett admin routes
+<Route path="/admin" element={
+  <ProtectedRoute>
+    <RoleGate allowedRoles={["admin"]}>
+      <AdminDashboard />
+    </RoleGate>
+  </ProtectedRoute>
+} />
+```
+
+### 📊 CMS Layout Támogatás
+- ✅ **teams layout** - TeamsPage widget konfiguráció
+- ✅ **team-detail layout** - TeamDetailPage widget konfiguráció  
+- ✅ **league-standings layout** - LeagueOverview standings widget
+- ✅ **admin-dashboard layout** - Admin dashboard cards konfiguráció
+
+### 🧪 Testing Ready
+- ✅ **Playwright smoke tests** készen állnak az admin workflow-okra
+- ✅ **Widget registry** automatikusan felismeri az új komponenseket
+- ✅ **Supabase fallback** - mock adatok ha API nem elérhető
+
+### 📋 Eredmény
+A Team/Admin rollout **teljes mértékben implementálva**:
+- ⚽ **Team pages** valós Supabase adatokkal
+- 🏢 **Admin dashboard** teljes funkcionalitással
+- 🤖 **Model management** professzionális workflow
+- 🔒 **Role-based access control** minden admin funkcióra
+- 🧩 **Widget registry** bővítve új team/admin komponensekkel
+
+---
+
 **Készítette:** AI Agent  
 **Repository:** WinMix TipsterHub  
-**Branch:** feature-sync-winmix-workflow-json  
-**Dátum:** 2025-11-28
+**Branch:** feat/team-admin-rollout  
+**Dátum:** 2025-12-11

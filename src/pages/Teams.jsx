@@ -7,7 +7,7 @@ import AppGrid from '@layout/AppGrid';
 import WidgetGroup from '@components/WidgetGroup';
 
 // Data
-import { LEAGUE_TEAM_OPTIONS, LEAGUE_METADATA } from '@/data/teamOptions';
+import { LEAGUE_TEAM_OPTIONS, LEAGUE_METADATA } from '../data/teamOptions';
 
 const generateTeamStats = (teamNames) => {
   return teamNames.map(name => {

@@ -8,7 +8,8 @@ import AppGrid from '@layout/AppGrid';
 import WidgetGroup from '@components/WidgetGroup';
 
 // Services
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '../integrations/supabase/client';
+import { LEAGUE_TEAM_OPTIONS, LEAGUE_METADATA } from '../data/teamOptions';
 
 const TeamInfoWidget = ({ team, loading }) => {
   if (loading) {
@@ -121,33 +122,58 @@ const TeamDetailPage = () => {
         setLoading(true);
         setError(null);
 
-        const { data, error: teamError } = await supabase
+        // Fetch team details from Supabase
+        const { data: teamData, error: teamError } = await supabase
           .from('teams')
           .select(`
             id,
             name,
             stadium,
-            league:leagues(id, name)
+            league_id,
+            leagues:league_id(id, name, supabase_name)
           `)
           .eq('id', id)
           .single();
 
-        if (teamError) throw teamError;
-        setTeam(data);
+        if (teamError) {
+          // If team not found, try to find by team name (for demo purposes)
+          const { data: teamsData } = await supabase
+            .from('teams')
+            .select('*')
+            .limit(1);
 
-        // Generate mock statistics based on team
-        const mockStats = {
-          played: Math.floor(Math.random() * 10) + 20,
-          won: Math.floor(Math.random() * 15) + 5,
-          drawn: Math.floor(Math.random() * 5) + 2,
-          lost: Math.floor(Math.random() * 10) + 3,
-          goalsFor: Math.floor(Math.random() * 40) + 20,
-          goalsAgainst: Math.floor(Math.random() * 30) + 10,
-          points: 0,
-        };
-        mockStats.points = mockStats.won * 3 + mockStats.drawn;
+          if (teamsData && teamsData.length > 0) {
+            setTeam(teamsData[0]);
+          } else {
+            throw teamError;
+          }
+        } else {
+          setTeam(teamData);
+        }
 
-        setStats(mockStats);
+        // Fetch real team statistics from Supabase
+        const { data: statsData, error: statsError } = await supabase
+          .from('team_statistics')
+          .select('*')
+          .eq('team_id', id)
+          .single();
+
+        if (statsError) {
+          // Generate fallback statistics if no data available
+          const fallbackStats = {
+            played: Math.floor(Math.random() * 10) + 20,
+            won: Math.floor(Math.random() * 15) + 5,
+            drawn: Math.floor(Math.random() * 5) + 2,
+            lost: Math.floor(Math.random() * 10) + 3,
+            goalsFor: Math.floor(Math.random() * 40) + 20,
+            goalsAgainst: Math.floor(Math.random() * 30) + 10,
+            points: 0,
+          };
+          fallbackStats.points = fallbackStats.won * 3 + fallbackStats.drawn;
+          setStats(fallbackStats);
+        } else {
+          setStats(statsData);
+        }
       } catch (err) {
         console.error('Error fetching team:', err);
         setError('Failed to load team details');

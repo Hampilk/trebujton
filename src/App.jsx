@@ -45,6 +45,14 @@ const Login = lazy(() => import("@pages/Login"));
 const SignUp = lazy(() => import("@pages/SignUp"));
 const Profile = lazy(() => import("@pages/Profile"));
 const Settings = lazy(() => import("@pages/Settings"));
+const Teams = lazy(() => import("@pages/Teams"));
+const TeamDetail = lazy(() => import("@pages/TeamDetail"));
+
+// Admin Pages
+const AdminDashboard = lazy(() => import("@pages/admin/AdminDashboard"));
+const ModelsPage = lazy(() => import("@pages/ModelsPage"));
+const PredictionReviewPage = lazy(() => import("@pages/admin/PredictionReviewPage"));
+const ModelStatusDashboard = lazy(() => import("@pages/admin/ModelStatusDashboard"));
 
 // WinMix Pro Admin (CMS)
 const WinmixProAdmin = lazy(() => import("@pages/winmixpro"));
