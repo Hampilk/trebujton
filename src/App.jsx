@@ -43,6 +43,7 @@ const BrandStore = lazy(() => import("@pages/BrandStore"));
 const Product = lazy(() => import("@pages/Product"));
 const Login = lazy(() => import("@pages/Login"));
 const SignUp = lazy(() => import("@pages/SignUp"));
+const Profile = lazy(() => import("@pages/Profile"));
 const Settings = lazy(() => import("@pages/Settings"));
 
 // WinMix Pro Admin (CMS)

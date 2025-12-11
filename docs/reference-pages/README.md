@@ -132,11 +132,44 @@ The platform now includes Supabase Authentication with role-based access control
 - **User**: Read-only access to public predictions and match data.
 
 ### Authentication Features
-- **Email/Password Sign-up & Sign-in**: Baseline authentication flow with validation.
+- **Email/Password Sign-up & Sign-in**: Baseline authentication flow with validation using React Hook Form + Zod.
 - **Session Management**: Automatic token refresh and persistence via localStorage.
 - **Protected Routes**: AuthGate component manages access control with configurable role requirements.
+- **Profile Management**: Users can view and edit their profile information at `/profile`.
 - **Public Demo Access**: Unauthenticated users can view matches, teams, leagues, and public predictions (read-only).
 - **OAuth Support (Optional)**: Hooks for Google/GitHub authentication can be configured via Supabase dashboard.
+
+### Auth Implementation Details
+
+The authentication system has been rebuilt using modern best practices:
+
+#### Schema-Based Validation
+All auth forms use Zod schemas for runtime validation with React Hook Form:
+- **Login Schema**: Email validation + 6-character minimum password
+- **Signup Schema**: Full name (2+ chars), email, password matching, and confirmation
+
+Schemas are centralized in `src/schemas/auth.js` and shared between pages and widgets.
+
+#### Auth Pages (`src/pages/`)
+- **Login.jsx**: Full-page login experience with email/password, error states, loading indicators, and navigation CTAs
+- **SignUp.jsx**: Account creation with full name, email, password confirmation, and success state with redirect
+- **Profile.jsx**: Authenticated user profile management with editable fields (full_name, bio, avatar_url) backed by the `user_profiles` Supabase table
+
+#### Auth Widgets (`src/widgets/`)
+Legacy auth widgets have been hardened to use Zod schemas while maintaining backward compatibility:
+- **LoginForm.jsx**: Exposes `onSuccess`, `onError`, `showRememberMe`, `showResetPassword` props for embedding
+- **SignUpForm.jsx**: Exposes `onSuccess`, `onError`, `standalone` props for flexible layouts
+
+Both widgets delegate to `AuthContext` for `signIn`/`signUp` operations.
+
+#### UI Components (`src/components/ui/`)
+Shadcn-inspired primitives for consistent, theme-aware auth UI:
+- **Button**: Variants (default, destructive, outline, ghost, link) + sizes (default, sm, lg, icon)
+- **Card**: CardHeader, CardTitle, CardDescription, CardContent, CardFooter
+- **Input**: Text/email/password inputs with focus rings
+- **Label**: Form labels with accessibility support
+- **Alert**: Alert + AlertDescription for error/success messaging
+- **Badge**: Role indicators and status badges
 
 ### Creating Your First User
 1. Start the development server: `npm run dev`
@@ -154,11 +187,36 @@ UPDATE user_profiles SET role = 'admin' WHERE email = 'your-email@example.com';
 ### Route Access Control
 | Route Category | Authentication Required | Default Roles Allowed |
 | --- | --- | --- |
-| Public (`/`, `/login`, `/signup`) | ❌ No | All visitors |
+| Public (`/`, `/login`, `/sign-up`) | ❌ No | All visitors |
 | Demo Routes (`/predictions`, `/matches`, `/teams`, `/leagues`) | ❌ No (read-only) | All visitors |
 | Protected Dashboards (`/dashboard`, `/analytics`, `/models`, `/monitoring`, `/phase9`) | ✅ Yes | admin, analyst, user |
+| Profile Management (`/profile`) | ✅ Yes | admin, analyst, user |
+| Settings (`/settings`) | ✅ Yes | admin, analyst, user |
 | Job Management (`/jobs`) | ✅ Yes | admin, analyst |
 | Prediction Creation (`/predictions/new`) | ✅ Yes | admin, analyst, user |
+
+### Auth Testing
+Comprehensive test coverage for auth flows using Vitest + Testing Library:
+
+**Test Files:**
+- `src/test/components/Login.test.jsx` - Login page validation and user interactions
+- `src/test/components/SignUp.test.jsx` - Signup page validation and form states
+- `src/test/schemas/auth.test.js` - Zod schema validation logic
+
+**Test Coverage:**
+- ✅ Form validation (email format, password length, name requirements)
+- ✅ Password matching validation
+- ✅ Error message display
+- ✅ Loading states and button disabling
+- ✅ Navigation links (sign up ↔ login, back to home)
+- ✅ Schema-level validation independent of UI
+
+Run tests with:
+```bash
+npm test                    # Run all tests
+npm run test:watch          # Watch mode for development
+npm run test:coverage       # Generate coverage report
+```
 
 ### Environment Variables
 Configure authentication in your `.env` file (see `.env.example`):
