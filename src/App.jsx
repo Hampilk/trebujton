@@ -1,20 +1,13 @@
 import React, { lazy, Suspense, useEffect, useMemo, useRef } from "react";
 import ReactGA from "react-ga4";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-// Styling & Providers
-import { ThemeProvider as StyledThemeProvider, StyleSheetManager } from "styled-components";
-import { ThemeProvider as MuiThemeProvider, createTheme } from "@mui/material/styles";
+import { StyleSheetManager } from "styled-components";
 import rtlPlugin from "stylis-plugin-rtl";
-import createCache from "@emotion/cache";
-import { CacheProvider } from "@emotion/react";
 
+// Styling
 import ThemeStyles from "@styles/theme";
 import "./style.scss";
 
 // Contexts
-import { SidebarProvider } from "@/contexts/sidebarContext";
-import { AuthProvider } from "@/contexts/AuthContext";
 import { useThemeProvider } from "@/contexts/themeContext";
 
 // Hooks
@@ -31,16 +24,6 @@ import BottomNav from "@/layout/BottomNav";
 import ShoppingCart from "@/widgets/ShoppingCart";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import RoleGate from "@/components/RoleGate";
-
-// Toast
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.min.css";
-
-// Grid and UI libs
-import "react-grid-layout/css/styles.css";
-import "swiper/css";
-import "swiper/css/effect-fade";
-import "swiper/css/pagination";
 
 // Pages
 const ClubSummary = lazy(() => import("@pages/ClubSummary"));
@@ -66,17 +49,6 @@ const Settings = lazy(() => import("@pages/Settings"));
 // WinMix Pro Admin (CMS)
 const WinmixProAdmin = lazy(() => import("@pages/winmixpro"));
 
-// React Query Client
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 3,
-      staleTime: 5 * 60 * 1000,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
-
 const App = () => {
   const appRef = useRef(null);
   const { theme, direction } = useThemeProvider();
@@ -88,27 +60,19 @@ const App = () => {
   // Google Analytics
   useEffect(() => {
     const gaKey = import.meta.env.VITE_PUBLIC_GA;
-    if (gaKey) ReactGA.initialize(gaKey);
+    if (gaKey) {
+      try {
+        ReactGA.initialize(gaKey);
+      } catch (err) {
+        console.warn("GA4 initialization failed:", err);
+      }
+    } else {
+      console.warn("VITE_PUBLIC_GA environment variable not configured");
+    }
   }, []);
 
   // RTL Support
   const plugins = useMemo(() => (direction === "rtl" ? [rtlPlugin] : []), [direction]);
-
-  // MUI Theme
-  const muiTheme = useMemo(() => createTheme({ direction }), [direction]);
-
-  // Emotion RTL Cache
-  const emotionCache = useMemo(
-    () =>
-      createCache({
-        key: direction === "rtl" ? "muirtl" : "muiltr",
-        stylisPlugins: plugins,
-      }),
-    [direction]
-  );
-
-  // Toast Position
-  const toastPosition = direction === "rtl" ? "top-left" : "top-right";
 
   // Scroll to top on route change
   useEffect(() => {
@@ -116,83 +80,69 @@ const App = () => {
   }, [location.pathname]);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <CacheProvider value={emotionCache}>
-          <MuiThemeProvider theme={muiTheme}>
-            <SidebarProvider>
-              <StyledThemeProvider theme={{ theme }}>
-                <ThemeStyles />
+    <>
+      <ThemeStyles />
+      <StyleSheetManager stylisPlugins={plugins}>
+        <div className={`app ${isAuthRoute ? "fluid" : ""}`} ref={appRef}>
+          <ScrollToTop />
 
-                <ToastContainer theme={theme} position={toastPosition} autoClose={2500} />
+          {/* Layout wrappers except auth pages */}
+          {!isAuthRoute && (
+            <>
+              <Sidebar />
+              {isMobile && <Navbar />}
+              {isMobile && <BottomNav />}
+            </>
+          )}
 
-                <StyleSheetManager stylisPlugins={plugins}>
-                  <div className={`app ${isAuthRoute ? "fluid" : ""}`} ref={appRef}>
-                    <ScrollToTop />
+          <div className="app_container">
+            <div className="app_container-content d-flex flex-column flex-1">
+              <Suspense fallback={<LoadingScreen />}>
+                <Routes>
+                  {/* Public */}
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/sign-up" element={<SignUp />} />
 
-                    {/* Layout wrappers except auth pages */}
-                    {!isAuthRoute && (
-                      <>
-                        <Sidebar />
-                        {isMobile && <Navbar />}
-                        {isMobile && <BottomNav />}
-                      </>
-                    )}
+                  {/* Protected */}
+                  <Route path="/" element={<ProtectedRoute><ClubSummary /></ProtectedRoute>} />
+                  <Route path="/game-summary" element={<ProtectedRoute><GameSummary /></ProtectedRoute>} />
+                  <Route path="/championships" element={<ProtectedRoute><Championships /></ProtectedRoute>} />
+                  <Route path="/league-overview" element={<ProtectedRoute><LeagueOverview /></ProtectedRoute>} />
+                  <Route path="/fans-community" element={<ProtectedRoute><FansCommunity /></ProtectedRoute>} />
+                  <Route path="/statistics" element={<ProtectedRoute><Statistics /></ProtectedRoute>} />
+                  <Route path="/match-summary" element={<ProtectedRoute><MatchSummary /></ProtectedRoute>} />
+                  <Route path="/match-overview" element={<ProtectedRoute><MatchOverview /></ProtectedRoute>} />
+                  <Route path="/player-profile" element={<ProtectedRoute><PlayerProfile /></ProtectedRoute>} />
+                  <Route path="/schedule" element={<ProtectedRoute><Schedule /></ProtectedRoute>} />
+                  <Route path="/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
+                  <Route path="/football-store" element={<ProtectedRoute><FootballStore /></ProtectedRoute>} />
+                  <Route path="/brand-store" element={<ProtectedRoute><BrandStore /></ProtectedRoute>} />
+                  <Route path="/product" element={<ProtectedRoute><Product /></ProtectedRoute>} />
+                  <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
 
-                    <div className="app_container">
-                      <div className="app_container-content d-flex flex-column flex-1">
-                        <Suspense fallback={<LoadingScreen />}>
-                          <Routes>
-                            {/* Public */}
-                            <Route path="/login" element={<Login />} />
-                            <Route path="/sign-up" element={<SignUp />} />
+                  {/* Admin (CMS) */}
+                  <Route
+                    path="/winmixpro/admin/*"
+                    element={
+                      <ProtectedRoute>
+                        <RoleGate allowedRoles={["admin"]}>
+                          <WinmixProAdmin />
+                        </RoleGate>
+                      </ProtectedRoute>
+                    }
+                  />
 
-                            {/* Protected */}
-                            <Route path="/" element={<ProtectedRoute><ClubSummary /></ProtectedRoute>} />
-                            <Route path="/game-summary" element={<ProtectedRoute><GameSummary /></ProtectedRoute>} />
-                            <Route path="/championships" element={<ProtectedRoute><Championships /></ProtectedRoute>} />
-                            <Route path="/league-overview" element={<ProtectedRoute><LeagueOverview /></ProtectedRoute>} />
-                            <Route path="/fans-community" element={<ProtectedRoute><FansCommunity /></ProtectedRoute>} />
-                            <Route path="/statistics" element={<ProtectedRoute><Statistics /></ProtectedRoute>} />
-                            <Route path="/match-summary" element={<ProtectedRoute><MatchSummary /></ProtectedRoute>} />
-                            <Route path="/match-overview" element={<ProtectedRoute><MatchOverview /></ProtectedRoute>} />
-                            <Route path="/player-profile" element={<ProtectedRoute><PlayerProfile /></ProtectedRoute>} />
-                            <Route path="/schedule" element={<ProtectedRoute><Schedule /></ProtectedRoute>} />
-                            <Route path="/tickets" element={<ProtectedRoute><Tickets /></ProtectedRoute>} />
-                            <Route path="/football-store" element={<ProtectedRoute><FootballStore /></ProtectedRoute>} />
-                            <Route path="/brand-store" element={<ProtectedRoute><BrandStore /></ProtectedRoute>} />
-                            <Route path="/product" element={<ProtectedRoute><Product /></ProtectedRoute>} />
-                            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-                            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+                  {/* 404 */}
+                  <Route path="*" element={<PageNotFound />} />
+                </Routes>
+              </Suspense>
+            </div>
+          </div>
 
-                            {/* Admin (CMS) */}
-                            <Route
-                              path="/winmixpro/admin/*"
-                              element={
-                                <ProtectedRoute>
-                                  <RoleGate allowedRoles={["admin"]}>
-                                    <WinmixProAdmin />
-                                  </RoleGate>
-                                </ProtectedRoute>
-                              }
-                            />
-
-                            {/* 404 */}
-                            <Route path="*" element={<PageNotFound />} />
-                          </Routes>
-                        </Suspense>
-                      </div>
-                    </div>
-
-                    <ShoppingCart isPopup />
-                  </div>
-                </StyleSheetManager>
-              </StyledThemeProvider>
-            </SidebarProvider>
-          </MuiThemeProvider>
-        </CacheProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+          <ShoppingCart isPopup />
+        </div>
+      </StyleSheetManager>
+    </>
   );
 };
 

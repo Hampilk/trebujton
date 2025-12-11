@@ -98,4 +98,19 @@ const ActiveActionsChart = () => {
     )
 }
 
+ActiveActionsChart.meta = {
+  id: 'active_actions_chart',
+  name: 'Active Actions Chart',
+  category: 'Football',
+  defaultSize: { w: 2, h: 2 },
+  props: {
+    clubId: {
+      type: 'string',
+      default: 'tottenham',
+      description: 'Club ID to display',
+    },
+  },
+  preview: 'Bar chart showing active actions by player position',
+};
+
 export default ActiveActionsChart

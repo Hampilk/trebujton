@@ -32,4 +32,13 @@ const MatchResultBasic = () => {
     )
 }
 
+MatchResultBasic.meta = {
+  id: 'match_result_basic',
+  name: 'Match Results Basic',
+  category: 'Football',
+  defaultSize: { w: 1, h: 4 },
+  props: {},
+  preview: 'Scrollable list of match results with scores',
+};
+
 export default MatchResultBasic

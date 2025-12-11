@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useSupabase } from "./SupabaseProvider";
 import type { User, Session } from "@supabase/supabase-js";
 import type Database from "@/integrations/supabase/types";
 
@@ -30,6 +30,7 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const { client: supabase, session: supabaseSession, loading: supabaseLoading } = useSupabase();
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -38,10 +39,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // ----------------------------------------------------
   // Fetch profile
-  // ----------------------------------------------------
   const loadProfile = async (userId: string, email?: string) => {
+    if (!supabase) return null;
+
     const { data, error } = await supabase
       .from("user_profiles" as any)
       .select("*")
@@ -86,18 +87,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return data;
   };
 
-  // ----------------------------------------------------
   // Fetch role
-  // ----------------------------------------------------
   const loadUserRole = async (userId: string) => {
+    if (!supabase) return null;
+
     const _res = await supabase
       .from("user_roles" as any)
       .select("role")
       .eq("user_id", userId)
       .single();
 
-    const data = _res.data as any
-    const error = _res.error
+    const data = _res.data as any;
+    const error = _res.error;
 
     // Missing role → create default "viewer"
     if (error?.code === "PGRST116") {
@@ -122,51 +123,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return data.role as UserRole;
   };
 
-  // ----------------------------------------------------
-  // Load session, user, profile, role
-  // ----------------------------------------------------
+  // Sync with Supabase session changes
   useEffect(() => {
-    const init = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+    setSession(supabaseSession);
+    setUser(supabaseSession?.user ?? null);
 
-      setSession(session);
-      setUser(session?.user ?? null);
+    if (supabaseSession?.user) {
+      loadProfile(supabaseSession.user.id, supabaseSession.user.email);
+      loadUserRole(supabaseSession.user.id);
+    } else {
+      setProfile(null);
+      setRole(null);
+    }
+  }, [supabaseSession]);
 
-      if (session?.user) {
-        await loadProfile(session.user.id, session.user.email);
-        await loadUserRole(session.user.id);
-      }
-
+  // Update loading state when Supabase is ready
+  useEffect(() => {
+    if (!supabaseLoading) {
       setLoading(false);
-    };
+    }
+  }, [supabaseLoading]);
 
-    init();
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (session?.user) {
-        await loadProfile(session.user.id, session.user.email);
-        await loadUserRole(session.user.id);
-      } else {
-        setProfile(null);
-        setRole(null);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  // ----------------------------------------------------
   // Auth functions
-  // ----------------------------------------------------
   const signUp = async (email: string, password: string, fullName?: string) => {
+    if (!supabase) throw new Error("Supabase client not initialized");
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -178,6 +158,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signIn = async (email: string, password: string) => {
+    if (!supabase) throw new Error("Supabase client not initialized");
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -188,11 +169,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
+    if (!supabase) throw new Error("Supabase client not initialized");
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
   };
 
   const resetPassword = async (email: string) => {
+    if (!supabase) throw new Error("Supabase client not initialized");
     const { data, error } = await supabase.auth.resetPasswordForEmail(email);
     if (error) throw error;
     return data;

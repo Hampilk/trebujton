@@ -15,7 +15,20 @@ const mockSupabase = {
     signOut: vi.fn(),
     resetPasswordForEmail: vi.fn(),
   },
+  from: vi.fn(),
 }
+
+vi.mock('@/contexts/SupabaseProvider', () => ({
+  SupabaseProvider: ({ children }: { children: React.ReactNode }) => {
+    return children
+  },
+  useSupabase: () => ({
+    client: mockSupabase,
+    session: null,
+    loading: false,
+    error: null,
+  }),
+}))
 
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: mockSupabase,
@@ -90,7 +103,9 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>{children}</AuthProvider>
+      <AuthProvider>
+        {children}
+      </AuthProvider>
     </QueryClientProvider>
   )
 }
@@ -551,7 +566,7 @@ describe('AuthProvider Integration Tests', () => {
 
       expect(() => {
         render(<TestComponent />)
-      }).toThrow('useAuth must be used within an AuthProvider')
+      }).toThrow('useAuth must be used inside <AuthProvider>')
 
       consoleSpy.mockRestore()
     })
