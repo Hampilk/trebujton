@@ -26,6 +26,7 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@emotion/utils": "^1.4.2",
+    "@hookform/resolvers": "^5.2.2",
     "@loadable/component": "^5.16.7",
     "@mui/base": "5.0.0-beta.70",
     "@mui/material": "^7.3.6",
@@ -82,7 +83,8 @@
     "stylis-plugin-rtl": "^2.1.1",
     "swiper": "^8.4.7",
     "tailwindcss-animate": "^1.0.7",
-    "use-gauge": "^0.5.0"
+    "use-gauge": "^0.5.0",
+    "zod": "^4.1.13"
   },
   "devDependencies": {
     "@babel/parser": "^7.28.5",
