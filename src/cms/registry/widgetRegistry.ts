@@ -29,20 +29,37 @@ export interface WidgetDefinition {
 }
 
 // Use Vite's glob import to auto-discover all widget components
-const widgetModules = import.meta.glob("/src/widgets/**/index.{jsx,tsx}", {
+// Glob both directory indexes and flat widget files
+const directoryModules = import.meta.glob("/src/widgets/**/index.{jsx,tsx}", {
   eager: true,
 });
+
+const flatWidgetModules = import.meta.glob("/src/widgets/**/*.{jsx,tsx}", {
+  eager: true,
+});
+
+// Merge both module sets, preferring directory index files
+const widgetModules = { ...flatWidgetModules, ...directoryModules };
 
 // Build the widget registry by extracting metadata from each component
 export const widgetRegistry: WidgetDefinition[] = [];
 
 Object.entries(widgetModules).forEach(([path, module]: [string, any]) => {
   try {
+    // Skip non-index files if a corresponding index.jsx/index.tsx exists
+    if (!path.includes("/index.") && directoryModules[path.replace(/\.(jsx|tsx)$/, "/index.$1")]) {
+      return;
+    }
+
     // Get the default export (the component)
     const Component = module.default;
 
+    if (!Component) {
+      return;
+    }
+
     // Check if the component has metadata attached
-    if (Component && Component.meta) {
+    if (Component.meta) {
       const meta = Component.meta;
 
       // Validate required fields
@@ -67,6 +84,11 @@ Object.entries(widgetModules).forEach(([path, module]: [string, any]) => {
       };
 
       widgetRegistry.push(widgetDef);
+    } else {
+      // Log graceful fallback for components missing meta
+      console.debug(
+        `Widget component at ${path} does not have meta attached. The widget will not be registered in the CMS.`,
+      );
     }
   } catch (error) {
     console.error(`Error loading widget from ${path}:`, error);

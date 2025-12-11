@@ -87,4 +87,13 @@ const MatchesSegmentChart = () => {
     )
 }
 
+MatchesSegmentChart.meta = {
+  id: 'segment_chart',
+  name: 'Matches Segment Chart',
+  category: 'Football',
+  defaultSize: { w: 1, h: 2 },
+  props: {},
+  preview: 'Donut chart showing match distribution by category',
+};
+
 export default MatchesSegmentChart

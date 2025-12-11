@@ -36,4 +36,19 @@ const League = () => {
     )
 }
 
+League.meta = {
+  id: 'league_rating',
+  name: 'League Rating',
+  category: 'Football',
+  defaultSize: { w: 1, h: 2 },
+  props: {
+    leagueId: {
+      type: 'string',
+      default: 'bundesliga',
+      description: 'League ID to display',
+    },
+  },
+  preview: 'League information and rating metrics',
+};
+
 export default League

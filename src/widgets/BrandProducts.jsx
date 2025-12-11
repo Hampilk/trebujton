@@ -101,4 +101,19 @@ const BrandProducts = () => {
     )
 }
 
+BrandProducts.meta = {
+  id: 'brand_products',
+  name: 'Brand Products',
+  category: 'Shop',
+  defaultSize: { w: 2, h: 2 },
+  props: {
+    limit: {
+      type: 'number',
+      default: 10,
+      description: 'Number of products to display',
+    },
+  },
+  preview: 'Swipeable carousel of featured brand products',
+};
+
 export default BrandProducts

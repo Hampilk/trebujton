@@ -429,6 +429,62 @@ const layouts = {
             {i: 'notifications_schedule', x: 0, y: 7, w: 1, h: 1},
             {i: 'password', x: 1, y: 6, w: 1, h: 2}
         ]
+    },
+    dashboard: {
+        xl: [
+            {i: 'stats', x: 0, y: 0, w: 4, h: 1},
+            {i: 'predictions', x: 0, y: 1, w: 2, h: 2},
+            {i: 'patterns', x: 2, y: 1, w: 2, h: 2},
+        ],
+        lg: [
+            {i: 'stats', x: 0, y: 0, w: 3, h: 1},
+            {i: 'predictions', x: 0, y: 1, w: 2, h: 2},
+            {i: 'patterns', x: 0, y: 3, w: 3, h: 2},
+        ],
+        md: [
+            {i: 'stats', x: 0, y: 0, w: 2, h: 1},
+            {i: 'predictions', x: 0, y: 1, w: 2, h: 2},
+            {i: 'patterns', x: 0, y: 3, w: 2, h: 2},
+        ]
+    },
+    predictions: {
+        xl: [
+            {i: 'predictions', x: 0, y: 0, w: 4, h: 3},
+        ],
+        lg: [
+            {i: 'predictions', x: 0, y: 0, w: 3, h: 3},
+        ],
+        md: [
+            {i: 'predictions', x: 0, y: 0, w: 2, h: 3},
+        ]
+    },
+    matches: {
+        xl: [
+            {i: 'matches', x: 0, y: 0, w: 4, h: 3},
+        ],
+        lg: [
+            {i: 'matches', x: 0, y: 0, w: 3, h: 3},
+        ],
+        md: [
+            {i: 'matches', x: 0, y: 0, w: 2, h: 3},
+        ]
+    },
+    'match-detail': {
+        xl: [
+            {i: 'info', x: 0, y: 0, w: 4, h: 1},
+            {i: 'prediction', x: 0, y: 1, w: 2, h: 2},
+            {i: 'patterns', x: 2, y: 1, w: 2, h: 2},
+        ],
+        lg: [
+            {i: 'info', x: 0, y: 0, w: 3, h: 1},
+            {i: 'prediction', x: 0, y: 1, w: 2, h: 2},
+            {i: 'patterns', x: 2, y: 1, w: 1, h: 2},
+        ],
+        md: [
+            {i: 'info', x: 0, y: 0, w: 2, h: 1},
+            {i: 'prediction', x: 0, y: 1, w: 2, h: 2},
+            {i: 'patterns', x: 0, y: 3, w: 2, h: 2},
+        ]
     }
 }
 

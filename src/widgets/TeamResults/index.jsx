@@ -139,4 +139,13 @@ const TeamResults = () => {
     )
 }
 
+TeamResults.meta = {
+  id: 'team_results',
+  name: 'Team Results',
+  category: 'Football',
+  defaultSize: { w: 2, h: 2 },
+  props: {},
+  preview: 'Team results and statistics visualization',
+};
+
 export default TeamResults

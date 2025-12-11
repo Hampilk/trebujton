@@ -1,388 +1,165 @@
-# WinmixPro Premium Design System - Implementation Summary
+# Core User Pages Implementation - Phase 1 Completion
 
 ## Overview
-Successfully implemented a complete premium design system with glass-morphism aesthetics, responsive 12-column grid layout, and reusable UI primitives for WinmixPro admin interfaces.
+Successfully aligned core user pages (`Dashboard`, `PredictionsView`, `MatchesPage`, and `MatchDetail`) with WinMix page specifications, implementing consistent TanStack Query patterns and registry-driven widget architecture.
 
-## Deliverables
+## Key Accomplishments
 
-### 1. Tailwind Configuration (✅)
-**File**: `tailwind.config.ts`
+### 1. TanStack Query Hook Implementation
+Created comprehensive data-fetching hooks with consistent caching and loading states:
 
-Updates:
-- Added `src/winmixpro/**/*.{ts,tsx}` to content paths
-- Added Zinc, Emerald, Violet color palettes
-- Added custom shadows: `glass`, `glass-lg`, `glow-emerald`, `glow-violet`
-- Added backdrop blur utilities: `xl` (20px), `2xl` (40px)
-- Added shimmer keyframes and animations
-- Added `winmix-dark` background color (#050505)
+- **useDashboard.ts** - Comprehensive dashboard data aggregation (predictions, stats, patterns)
+- **usePredictions.ts** - Predictions list management with refresh capabilities  
+- **useMatchesDirect.ts** - Matches filtering and management
+- **useMatchPredictions.ts** - Individual match prediction handling
 
-### 2. Global Styles (✅)
-**File**: `src/index.css`
+### 2. Widget Registry System
+Replaced inline widget definitions with registry-driven configurations:
 
-New features:
-- Imported Inter font from Google Fonts
-- Updated CSS variables for premium dark theme (#050505)
-- Added radial gradient overlays for depth
-- Custom scrollbar styling
-- Transition timing defaults
-- 30+ utility classes for glass effects, gradients, and responsive text
-- Shimmer animation
-- Glow effects (emerald, violet, orange)
+- **Dashboard Stats Widget** (`DashboardStats`) - Statistical overview cards
+- **Recent Predictions Widget** (`RecentPredictions`) - Prediction list with refresh
+- **Pattern Performance Widget** (`PatternPerformance`) - Accuracy visualization
+- **Predictions List Widget** (`PredictionsList`) - Comprehensive prediction table
+- **Matches List Widget** (`MatchesList`) - Filterable matches table
+- **Match Info Widget** (`MatchInfo`) - Match details display
+- **Match Detail Prediction Widget** (`MatchDetailPrediction`) - AI prediction interface
+- **Match Patterns Widget** (`MatchPatterns`) - Pattern detection results
 
-### 3. Layout Primitives (✅)
-**Directory**: `src/winmixpro/components/layout/`
+### 3. Layout System Updates
+Added missing page layouts to `layouts.js`:
+- `dashboard` - 3-widget layout (stats, predictions, patterns)
+- `predictions` - Single widget layout for predictions list
+- `matches` - Single widget layout for matches table  
+- `match-detail` - 3-widget layout (info, prediction, patterns)
 
-#### AdminLayout.tsx (1,733 bytes)
-- Main layout shell combining all layout elements
-- Sticky header with user menu
-- Responsive sidebar (hidden on mobile, visible on md+)
-- Mobile drawer overlay
-- Dark theme background (#050505)
-- Fixed sidebar width: 280px (md), 320px (lg)
+### 4. Page Refactoring
+Completely refactored all target pages to use new architecture:
 
-#### Header.tsx (3,156 bytes)
-- Premium glass-morphic header
-- Logo with gradient text
-- User menu with settings and logout
-- Mobile menu toggle button
-- Responsive design
-- White space overlay with blur
+- **Dashboard.jsx** - Now uses `useDashboard()` hook and registry widgets
+- **PredictionsView.jsx** - Simplified with `usePredictions()` hook and widget composition
+- **MatchesPage.jsx** - Implemented filterable search with `useMatches()` hook
+- **MatchDetail.jsx** - Advanced state management with separate match/prediction hooks
 
-#### Sidebar.tsx (5,109 bytes)
-- Fixed sidebar navigation
-- 15 admin destinations with Hungarian labels
-- Active route highlighting
-- Badge support for notifications
-- Responsive grid layout support
-- Glass-morphic styling
+### 5. Service Layer Extensions
+Enhanced existing service layer to support comprehensive data fetching:
+- Extended patterns in existing services
+- Added query key patterns for cache management
+- Implemented optimistic updates where appropriate
 
-#### MobileMenu.tsx (4,350 bytes)
-- Mobile-only navigation drawer
-- Full list of 15 destinations
-- Closes on route navigation
-- Escape key support
-- Backdrop overlay
-- Responsive implementation
+### 6. Error Handling & Loading States
+Implemented consistent error boundaries and loading states:
+- User-friendly error messages in Hungarian/English
+- Loading skeletons and spinners
+- Retry mechanisms for failed queries
 
-#### LayoutGrid.tsx (795 bytes)
-- Responsive grid wrapper
-- Three variants: full (12-col), 3-6-3 (dashboard), sidebar
-- Mobile: 1 column
-- Tablet+: 12 columns
-- Customizable gaps and classes
+## Technical Architecture
 
-### 4. UI Atoms (✅)
-**Directory**: `src/winmixpro/components/ui/`
-
-#### GlassCard.tsx (917 bytes)
-- Premium glass-morphism card
-- Interactive mode with hover effects
-- Glow effects: emerald, violet, none
-- Backdrop blur + white overlay
-- Border styling
-
-#### MetricPill.tsx (1,455 bytes)
-- Compact stat badge
-- Three variants: emerald, violet, neutral
-- Three sizes: sm, md, lg
-- Optional icon
-- Hover effects
-
-#### SectionTitle.tsx (1,299 bytes)
-- Gradient section headers
-- Emerald to violet gradient
-- Optional icon and subtitle
-- Alignment options: left, center, right
-- Responsive sizing
-
-#### GridCell.tsx (777 bytes)
-- Responsive grid cell
-- Five span options: left (3), center (6), right (3), full (12), half (6)
-- Mobile: 1 column
-- Desktop: Responsive spans
-
-#### StatCard.tsx (1,537 bytes)
-- Premium stat display card
-- Title, value, and icon
-- Optional trend indicator (up/down)
-- Gradient background accent
-- Glass-morphism styling
-
-### 5. App Wrapper & Demo (✅)
-
-#### WinmixProApp.tsx (706 bytes)
-- Wrapper component for easy layout integration
-- Provides AdminLayout with user email and logout
-- Can wrap any page content
-
-#### DemoPage.tsx (7,767 bytes)
-- Comprehensive showcase of all components
-- Multiple layout examples (3-6-3, full grid, responsive)
-- Interactive cards with glow effects
-- Typography and utility demonstrations
-
-### 6. Documentation (✅)
-
-#### README.md (11,813 bytes)
-- Complete component documentation
-- Architecture overview
-- Grid layout explanations
-- Component API reference
-- CSS utility classes
-- Color palette specification
-- Typography guidelines
-- Animation details
-- Usage examples
-- Responsive design patterns
-- Accessibility features
-- Customization guide
-- Browser support
-
-#### WINMIXPRO_INTEGRATION_GUIDE.md
-- Quick start guide
-- Integration examples
-- Component usage patterns
-- Grid layout reference
-- CSS utilities reference
-- Navigation structure
-- Responsive behavior
-- Performance considerations
-- Accessibility checklist
-- Migration guide
-
-## File Structure
-
+### Data Flow
 ```
-src/winmixpro/
-├── components/
-│   ├── layout/
-│   │   ├── AdminLayout.tsx       (Main layout shell)
-│   │   ├── Header.tsx            (Premium header)
-│   │   ├── Sidebar.tsx           (15 destinations, HU labels)
-│   │   ├── MobileMenu.tsx        (Mobile drawer)
-│   │   ├── LayoutGrid.tsx        (Responsive grid)
-│   │   └── index.ts              (Layout exports)
-│   ├── ui/
-│   │   ├── GlassCard.tsx         (Glass card)
-│   │   ├── MetricPill.tsx        (Stat badge)
-│   │   ├── SectionTitle.tsx      (Gradient header)
-│   │   ├── GridCell.tsx          (Grid cell)
-│   │   ├── StatCard.tsx          (Stat display)
-│   │   └── index.ts              (UI exports)
-│   └── index.ts                  (Component exports)
-├── WinmixProApp.tsx              (App wrapper)
-├── DemoPage.tsx                  (Component showcase)
-├── index.ts                      (Main exports)
-└── README.md                     (Documentation)
-
-Root files:
-├── tailwind.config.ts            (Updated with tokens)
-├── src/index.css                 (Updated with utilities)
-├── WINMIXPRO_INTEGRATION_GUIDE.md (Integration guide)
-└── IMPLEMENTATION_SUMMARY.md     (This file)
+TanStack Query Hooks → Service Layer → Supabase → Widget Registry → AppGrid
 ```
 
-## Component Statistics
-
-- **Total Components**: 5 layout + 5 UI = 10 components
-- **Total Files**: 17 (components + exports + docs)
-- **Lines of Code**: ~2,000
-- **Total Size**: ~25 KB (uncompressed)
-- **Build Size Impact**: <50 KB (gzipped, with all utilities)
-
-## Key Features Implemented
-
-### ✅ Premium Aesthetics
-- Dark theme: #050505 background
-- Emerald (#22c55e) primary accent
-- Violet (#a855f7) secondary accent
-- Glass morphism with backdrop blur
-- Custom shadows (0 8px 20px rgba(0,0,0,0.4))
-
-### ✅ Responsive Grid
-- 1 column on mobile (< 768px)
-- 12 columns on tablet (768px - 1024px)
-- 12 columns with 3-6-3 support on desktop (>= 1024px)
-- LayoutGrid component with three variants
-
-### ✅ Navigation
-- 15 admin destinations
-- All with Hungarian labels
-- Active route highlighting
-- Badge support
-- Mobile drawer with overlay
-- Desktop sidebar with icons
-
-### ✅ UI Components
-- Glass cards with glow effects
-- Metric pills for stats
-- Gradient section titles
-- Responsive grid cells
-- Stat cards with trends
-
-### ✅ Animations
-- Smooth transitions (200ms default)
-- Shimmer effects
-- Hover states
-- Focus indicators
-
-### ✅ Accessibility
-- WCAG AA color contrast
-- Semantic HTML
-- ARIA labels
-- Keyboard navigation
-- Focus management
-
-### ✅ Localization
-- Hungarian labels for all navigation items
-- Multi-language ready
-- Component-level text strings
-
-## Testing & Validation
-
-### Type Checking ✅
-```bash
-npm run type-check
+### Query Keys & Caching
+```typescript
+// Consistent query key patterns
+dashboardQueryKeys.all = ['dashboard']
+predictionsQueryKeys.all = ['predictions'] 
+matchesQueryKeys.all = ['matches']
+match-prediction: [id] pattern for granular caching
 ```
-- No TypeScript errors
-- All types properly defined
-- React types correct
 
-### Build Process ✅
-```bash
-npm run build
-```
-- Build completes successfully
-- No build errors
-- All imports resolved
-- Output generated correctly
-
-### Linting ✅
-- No linting errors in new components
-- Follows project conventions
-- Proper import organization
-
-## Responsive Breakpoints
-
-- `sm`: 640px
-- `md`: 768px (sidebar appears)
-- `lg`: 1024px (desktop layout)
-- `xl`: 1280px
-- `2xl`: 1536px
-
-## Browser Support
-
-- Chrome/Edge: Latest 2 versions
-- Firefox: Latest 2 versions
-- Safari: Latest 2 versions
-- Mobile browsers: iOS Safari 12+, Chrome Android 90+
-
-## Usage Example
-
-```tsx
-import { AdminLayout, LayoutGrid, GridCell, GlassCard, SectionTitle, StatCard } from '@/winmixpro';
-import { BarChart3, TrendingUp } from 'lucide-react';
-
-export function DashboardPage() {
-  return (
-    <AdminLayout userEmail="user@example.com">
-      <div className="space-y-8">
-        {/* Page Title */}
-        <SectionTitle
-          title="Dashboard"
-          subtitle="System overview"
-          icon={<BarChart3 className="w-6 h-6" />}
-        />
-
-        {/* 3-6-3 Layout */}
-        <LayoutGrid variant="3-6-3" className="gap-6">
-          {/* Left Sidebar */}
-          <GlassCard className="p-6">
-            <h3 className="font-bold text-white">Filters</h3>
-          </GlassCard>
-
-          {/* Main Content */}
-          <StatCard
-            title="Total Predictions"
-            value="45,291"
-            change={{ value: 12, direction: 'up' }}
-          />
-
-          {/* Right Panel */}
-          <GlassCard className="p-6">
-            <h3 className="font-bold text-white">Stats</h3>
-          </GlassCard>
-        </LayoutGrid>
-      </div>
-    </AdminLayout>
-  );
+### Widget Registry Pattern
+```typescript
+// Each widget includes meta information
+Widget.meta = {
+  id: 'dashboard-stats',
+  name: 'Dashboard Statistics', 
+  category: 'dashboard',
+  defaultSize: { w: 4, h: 1 },
+  props: { /* prop definitions */ }
 }
 ```
 
-## Import Paths
+## Route Guards & Navigation
+- Maintained existing route structure (`/predictions`, `/matches`, `/matches/:id`)
+- Added breadcrumb navigation with back buttons
+- Implemented deep linking capability from tables to detail views
+- Added "New Predictions" CTA at `/predictions/new`
 
-All components are accessible via `@/winmixpro`:
+## Database Integration
+All pages now properly hit documented Supabase tables:
+- `predictions` - With joins to `matches`, `teams`, `leagues`
+- `matches` - With related team and league data
+- `pattern_accuracy` - For performance metrics
+- `pattern_templates` - For pattern naming
 
-```tsx
-import {
-  // Layout
-  AdminLayout,
-  Header,
-  Sidebar,
-  MobileMenu,
-  LayoutGrid,
-  
-  // UI
-  GlassCard,
-  MetricPill,
-  SectionTitle,
-  GridCell,
-  StatCard,
-  
-  // App
-  WinmixProApp,
-} from '@/winmixpro';
+## Empty/Error States
+Added appropriate empty states matching documentation:
+- "No predictions yet" for fresh dashboards
+- "No matches found" for filtered searches  
+- "No patterns detected" for new matches
+- Detailed error messages with retry options
+
+## TypeScript Support
+- Full TypeScript coverage for new hooks
+- Proper interface definitions for all data types
+- Generic query patterns for extensibility
+
+## Testing
+- Added unit tests for `useDashboard` hook
+- Added unit tests for `usePredictions` hook
+- Mock Supabase responses for reliable testing
+- Integration tests for widget composition
+
+## Next Steps for Phase 2
+1. **Backfill E2E Coverage** - Playwright tests for user flows
+2. **Pagination/Filtering** - Implement server-side pagination for large datasets
+3. **Hungarian Copy** - Complete localization for all UI text
+4. **Performance Optimization** - Virtual scrolling for large lists
+5. **Real-time Updates** - WebSocket integration for live data
+
+## File Structure
+```
+src/
+├── hooks/
+│   ├── useDashboard.ts           # Dashboard data aggregation
+│   ├── usePredictions.ts         # Predictions management  
+│   ├── useMatchesDirect.ts       # Matches filtering
+│   └── useMatchPredictions.ts    # Match-specific predictions
+├── widgets/
+│   ├── DashboardStats/           # Stats overview widget
+│   ├── RecentPredictions/        # Recent predictions list
+│   ├── PatternPerformance/       # Pattern accuracy charts
+│   ├── PredictionsList/          # Full predictions table
+│   ├── MatchesList/              # Matches with filters
+│   ├── MatchInfo/                # Match details
+│   ├── MatchDetailPrediction/    # AI prediction display
+│   └── MatchPatterns/            # Detected patterns
+├── pages/
+│   ├── Dashboard.jsx             # Refactored dashboard
+│   ├── PredictionsView.jsx       # Simplified predictions view
+│   ├── MatchesPage.jsx           # Enhanced matches list
+│   └── MatchDetail.jsx           # Advanced match detail
+└── layouts.js                     # Added 4 new page layouts
 ```
 
-## Performance Metrics
+## Migration Benefits
+- **Consistency** - All pages now follow identical patterns
+- **Performance** - Query caching reduces API calls
+- **Maintainability** - Centralized data fetching logic
+- **Testability** - Hooks are easily testable in isolation  
+- **Scalability** - Widget registry enables easy feature additions
+- **Developer Experience** - Better TypeScript support and error handling
 
-- **CSS Utilities**: 30+ reusable classes
-- **Component Size**: Average 1-5 KB per component
-- **Build Impact**: Minimal (utilities only included when used)
-- **Runtime**: No performance penalty
-- **Animations**: GPU-accelerated
+## Success Metrics
+✅ TanStack Query implementation complete  
+✅ Widget registry system functional  
+✅ All 4 target pages refactored  
+✅ Database integration verified  
+✅ Error/loading states implemented  
+✅ Route guards and navigation working  
+✅ Layout system updated  
+✅ Unit test coverage added  
+✅ TypeScript support complete  
 
-## Future Enhancements
-
-- [ ] Dark/Light theme toggle
-- [ ] Custom color themes
-- [ ] RTL language support
-- [ ] Additional admin destinations
-- [ ] Component variants library
-- [ ] Storybook documentation
-- [ ] Animation preferences (prefers-reduced-motion)
-
-## Acceptance Criteria Met
-
-✅ Layout adapts to 1-column on <md, 12-column on ≥md, 3-6-3 on ≥lg
-✅ Navigation + header + sidebar fully localized (HU)
-✅ Responsive design works on mobile and desktop
-✅ Dark emerald/violet palette with glass panels
-✅ Shared layout components reusable across pages
-✅ No lint errors
-✅ All components properly typed
-✅ Builds successfully
-✅ Premium aesthetics implemented
-✅ Responsive grid layouts working
-
-## Conclusion
-
-The WinmixPro design system provides a complete, production-ready set of components and utilities for building premium admin interfaces. All components follow best practices for accessibility, performance, and maintainability. The system is fully typed with TypeScript and integrates seamlessly with the existing codebase.
-
-### Key Advantages
-1. **Consistency**: All pages use the same design tokens
-2. **Maintainability**: Centralized component definitions
-3. **Scalability**: Easy to add new components or variants
-4. **Performance**: Optimized CSS and animations
-5. **Accessibility**: WCAG AA compliant
-6. **Documentation**: Comprehensive guides and examples
+This completes Phase 1 of the Core User Pages implementation, providing a solid foundation for the remaining enhancements in Phase 2.
