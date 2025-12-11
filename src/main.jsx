@@ -1,20 +1,42 @@
-import React, { StrictMode, Component } from 'react';
+import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { CacheProvider } from '@emotion/react';
+import createCache from '@emotion/cache';
+
+// Styling
+import { ThemeProvider as MuiThemeProvider, createTheme } from '@mui/material/styles';
+import rtlPlugin from 'stylis-plugin-rtl';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.min.css';
+
+// Contexts
 import { ThemeProvider } from '@contexts/themeContext';
 import { ShopProvider } from '@contexts/shopContext';
+import { SidebarProvider } from '@contexts/sidebarContext';
+import { SupabaseProvider } from '@contexts/SupabaseProvider';
+import { AuthProvider } from '@contexts/AuthContext';
+import { useThemeProvider } from '@contexts/themeContext';
+
+// Providers
 import StyledComponentsProvider from '@providers/StyledComponentsProvider';
+
+// Components
 import App from './App';
 import store from './app/store';
 
-// Performance monitoring setup for JSX audit
-// Import React DevTools Profiler in development
+// Grid and UI libs
+import 'react-grid-layout/css/styles.css';
+import 'swiper/css';
+import 'swiper/css/effect-fade';
+import 'swiper/css/pagination';
+
+// Performance monitoring setup for development
 if (process.env.NODE_ENV === 'development') {
-  // Enable React DevTools Profiler API
   import('react-dom/profiling');
   
-  // Enable why-did-you-render if available (install via: npm i --save-dev @welldone-software/why-did-you-render)
   try {
     const whyDidYouRender = require('@welldone-software/why-did-you-render');
     whyDidYouRender(React, {
@@ -28,7 +50,6 @@ if (process.env.NODE_ENV === 'development') {
   }
 }
 
-// Root element megszerzése biztonságosan
 const rootElement = document.getElementById('root');
 
 if (!rootElement) {
@@ -37,12 +58,48 @@ if (!rootElement) {
   );
 }
 
-// Root létrehozása
 const root = createRoot(rootElement);
 
-// Provider hierarchia optimalizálása
-// Megjegyzés: StrictMode kikapcsolva a third-party library kompatibilitás miatt
-// Ha szükséges, később visszakapcsolható amikor minden dependency frissítve van
+// Create React Query client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 3,
+      staleTime: 5 * 60 * 1000,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
+// Inner component for theme access
+const AppWithTheme = ({ children }) => {
+  const { theme, direction } = useThemeProvider();
+  
+  const muiTheme = React.useMemo(() => createTheme({ direction }), [direction]);
+  const plugins = React.useMemo(() => (direction === 'rtl' ? [rtlPlugin] : []), [direction]);
+  const emotionCache = React.useMemo(
+    () =>
+      createCache({
+        key: direction === 'rtl' ? 'muirtl' : 'muiltr',
+        stylisPlugins: plugins,
+      }),
+    [direction]
+  );
+  const toastPosition = direction === 'rtl' ? 'top-left' : 'top-right';
+
+  return (
+    <CacheProvider value={emotionCache}>
+      <MuiThemeProvider theme={muiTheme}>
+        <SidebarProvider>
+          {children}
+        </SidebarProvider>
+      </MuiThemeProvider>
+    </CacheProvider>
+  );
+};
+
+// Main provider composition
+// Hierarchy: Redux → Router → Supabase → Theme → StyledComponents → Shop → QueryClient → Auth → Layout/Toast
 const AppProviders = ({ children }) => (
   <Provider store={store}>
     <BrowserRouter
@@ -51,18 +108,27 @@ const AppProviders = ({ children }) => (
         v7_relativeSplatPath: true,
       }}
     >
-      <ThemeProvider>
-        <StyledComponentsProvider>
-          <ShopProvider>
-            {children}
-          </ShopProvider>
-        </StyledComponentsProvider>
-      </ThemeProvider>
+      <SupabaseProvider>
+        <ThemeProvider>
+          <StyledComponentsProvider>
+            <ShopProvider>
+              <QueryClientProvider client={queryClient}>
+                <AuthProvider>
+                  <AppWithTheme>
+                    <ToastContainer autoClose={2500} />
+                    {children}
+                  </AppWithTheme>
+                </AuthProvider>
+              </QueryClientProvider>
+            </ShopProvider>
+          </StyledComponentsProvider>
+        </ThemeProvider>
+      </SupabaseProvider>
     </BrowserRouter>
   </Provider>
 );
 
-// Error boundary wrapper (opcionális, de ajánlott production környezetben)
+// Error boundary wrapper
 class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
@@ -75,17 +141,16 @@ class ErrorBoundary extends Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('Application error:', error, errorInfo);
-    // Itt küldhetsz error report-ot a monitoring service-ednek
   }
 
   render() {
     if (this.state.hasError) {
       return (
         <div style={{ padding: '20px', textAlign: 'center' }}>
-          <h1>Valami hiba történt</h1>
-          <p>Kérjük, frissítsd az oldalt vagy próbáld újra később.</p>
+          <h1>Something went wrong</h1>
+          <p>Please refresh the page or try again later.</p>
           <button onClick={() => window.location.reload()}>
-            Újratöltés
+            Reload
           </button>
         </div>
       );
@@ -95,7 +160,6 @@ class ErrorBoundary extends Component {
   }
 }
 
-// Alkalmazás renderelése
 root.render(
   <ErrorBoundary>
     <AppProviders>
